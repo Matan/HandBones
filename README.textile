@@ -1,0 +1,25 @@
+h2. HandBones
+
+Pure AS3 website framework built on Robotlegs.
+
+h3. Overview
+
+HandBones aims to make website development quick and easy. HandBones is driven by an init xml file where you specify how your site reacts, tracks and functions. The goal is for you to focus on the finer details when building a site, not worry about navigation, page loading, analytics. One thing is always certain when working with clients; Changes. HandBones will help you ease this by giving you the ability to make "major" changes to structure without rewriting the whole thing.
+
+HandBones introduces a new element to MVCS, namely P (Pages). HandBones allows you to compile multiple swfs from your application with NO cross compiling.
+
+h3. Some Features
+
+h4. MVCS - Robotlegs
+h4. External Control of navigation, structure, deeplinking, tracking and actions
+h4. ActionMap - Easily map your buttons, movieclips (IEventDispatcher) to external Action declarations
+h4. Automatic Navigation - Links with SWFAddress to give you deeplinking.
+h4. Google Analytic - uses GA for flash
+
+h2. License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
