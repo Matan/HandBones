@@ -14,7 +14,7 @@ h3. Some Features
 * External Control of navigation, structure, deeplinking, tracking and actions
 * ActionMap - Easily map your buttons, movieclips (IEventDispatcher) to external Action declarations
 * Automatic Navigation - Links with SWFAddress to give you deeplinking.
-* Google Analytic - uses GA for flash
+* Google Analytics - GA for flash
 
 h2. License
 
