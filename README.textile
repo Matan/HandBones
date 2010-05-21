@@ -10,11 +10,11 @@ HandBones introduces a new element to MVCS, namely P (Pages). HandBones allows y
 
 h3. Some Features
 
-h4. MVCS - Robotlegs
-h4. External Control of navigation, structure, deeplinking, tracking and actions
-h4. ActionMap - Easily map your buttons, movieclips (IEventDispatcher) to external Action declarations
-h4. Automatic Navigation - Links with SWFAddress to give you deeplinking.
-h4. Google Analytic - uses GA for flash
+* MVCS - Robotlegs
+* External Control of navigation, structure, deeplinking, tracking and actions
+* ActionMap - Easily map your buttons, movieclips (IEventDispatcher) to external Action declarations
+* Automatic Navigation - Links with SWFAddress to give you deeplinking.
+* Google Analytic - uses GA for flash
 
 h2. License
 
