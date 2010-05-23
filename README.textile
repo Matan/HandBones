@@ -1,6 +1,6 @@
 h2. HandBones
 
-Pure AS3 website framework built on Robotlegs.
+Pure AS3 website framework built on Robotlegs. View the "HandBones-Samples":http://github.com/Matan/HandBones-Samples repo. Full documentation will follow.
 
 h3. Overview
 
