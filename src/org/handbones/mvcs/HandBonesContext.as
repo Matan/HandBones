@@ -26,11 +26,13 @@ package org.handbones.mvcs
 		/**
 		 * Prevents Robotlegs from dispatching <code>ContextEvent.STARTUP_COMPLETE</code>.
 		 * At default HandBones will dispatch <code>ContextEvent.STARTUP_COMPLETE</code> when the settings have been loaded.
+		 * This will dispatch <code>ContextEvent.STARTUP</code>.
 		 * 
 		 * @see org.robotlegs.base.ContextEvent
 		 */
 		override public function startup() : void 
 		{
+			dispatchEvent(new ContextEvent(ContextEvent.STARTUP));
 		}
 	}
 }
