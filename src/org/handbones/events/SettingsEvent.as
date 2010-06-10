@@ -1,4 +1,5 @@
-package org.handbones.events {
+package org.handbones.events 
+{
 	import flash.events.Event;
 
 	/**

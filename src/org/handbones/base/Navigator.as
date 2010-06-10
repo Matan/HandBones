@@ -3,15 +3,16 @@ package org.handbones.base
 	import com.asual.address.SWFAddress;
 	import com.asual.address.SWFAddressEvent;
 
+	import org.assetloader.core.IAssetLoader;
+	import org.assetloader.core.ILoader;
 	import org.handbones.core.INavigator;
 	import org.handbones.core.IPage;
+	import org.handbones.core.IPageModel;
 	import org.handbones.events.NavigatorEvent;
-	import org.handbones.events.PageServiceEvent;
-	
 	import org.handbones.model.SettingsModel;
-	import org.handbones.services.PageService;
 	import org.robotlegs.mvcs.Actor;
 
+	import flash.events.Event;
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
@@ -26,11 +27,8 @@ package org.handbones.base
 		public var settingsModel : SettingsModel;
 
 		[Inject]
-		public var pageService : PageService;
-
-		[Inject]
-		public var pageCache : PageCache;
-
+		public var assetLoader : IAssetLoader;
+		
 		[PostConstruct]
 
 		public function init() : void 
@@ -43,10 +41,10 @@ package org.handbones.base
 		//-----------------------------------------------------------------------------------------------------------//
 		public function gotoPageId(id : String) : void 
 		{
-			var pageSettings : PageSettings = settingsModel.getPageSettingsById(id);
+			var pageModel : IPageModel = settingsModel.getPageModelById(id);
 			
-			if(pageSettings)
-				setAddress(pageSettings.address);
+			if(pageModel)
+				setAddress(pageModel.address);
 		}
 
 		public function invokeURL(url : String, window : String = null) : void 
@@ -99,16 +97,21 @@ package org.handbones.base
 		//-----------------------------------------------------------------------------------------------------------//
 		// PROTECTED
 		//-----------------------------------------------------------------------------------------------------------//
-		protected function navigateToPage(settings : PageSettings) : void 
+		protected function navigateToPage(pageModel : IPageModel) : void 
 		{
-			if(settings) 
+			if(pageModel) 
 			{
-				if(pageCache.isCached(settings.id)) 
-					dispatchNavigatorEvent(NavigatorEvent.PAGE_CHANGE, pageCache.getPage(settings.id));
-				else 
+				var id : String = pageModel.id;
+				var loader : ILoader = assetLoader.getLoader(id);
+				
+				if(loader.loaded)
+					dispatchNavigatorEvent(NavigatorEvent.PAGE_CHANGE, assetLoader.getAsset(id));
+				else
 				{
-					eventMap.mapListener(eventDispatcher, PageServiceEvent.LOADED, service_loaded_handler, PageServiceEvent);
-					pageService.load(settings);
+					eventMap.mapListener(loader, Event.COMPLETE, loader_complete_handler, Event);
+					
+					assetLoader.stop();
+					assetLoader.startAsset(id);
 				}
 			} 
 			else 
@@ -126,10 +129,14 @@ package org.handbones.base
 		//-----------------------------------------------------------------------------------------------------------//
 		// Handlers
 		//-----------------------------------------------------------------------------------------------------------//
-		protected function service_loaded_handler(event : PageServiceEvent) : void 
+		protected function loader_complete_handler(event : Event) : void 
 		{
-			eventMap.unmapListener(eventDispatcher, PageServiceEvent.LOADED, service_loaded_handler, PageServiceEvent);
-			dispatchNavigatorEvent(NavigatorEvent.PAGE_CHANGE, event.page);
+			var loader : ILoader = ILoader(event.target);
+			eventMap.mapListener(loader, Event.COMPLETE, loader_complete_handler, Event);
+			
+			dispatchNavigatorEvent(NavigatorEvent.PAGE_CHANGE, loader.data);
+			
+			assetLoader.start();
 		}
 
 		//-----------------------------------------------------------------------------------------------------------//
@@ -145,7 +152,7 @@ package org.handbones.base
 		{
 			dispatchNavigatorEvent(NavigatorEvent.ADDRESS_CHANGE);
 			
-			navigateToPage(settingsModel.getPageSettingsByAddress(getRootAddress()));
+			navigateToPage(settingsModel.getPageModelByAddress(getRootAddress()));
 		}
 	}
 }

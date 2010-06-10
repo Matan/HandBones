@@ -1,12 +1,13 @@
 package org.handbones.base 
 {
+	import org.assetloader.core.IGroupLoader;
 	import org.handbones.core.IPage;
-	import org.handbones.core.wrappers.ICommandMapWrapper;
-	import org.handbones.core.wrappers.IInjectorWrapper;
-	import org.handbones.core.wrappers.IMediatorMapWrapper;
-	import org.handbones.core.wrappers.IViewMapWrapper;
+	import org.handbones.core.IPageModel;
+	import org.handbones.core.page.IPageCommandMap;
+	import org.handbones.core.page.IPageInjector;
+	import org.handbones.core.page.IPageMediatorMap;
+	import org.handbones.core.page.IPageViewMap;
 	import org.handbones.events.PageEvent;
-	
 
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
@@ -23,39 +24,11 @@ package org.handbones.base
 		 */
 		protected var _eventDispatcher : IEventDispatcher;
 
-		/**
-		 * @private
-		 */
-		protected var _settings : PageSettings;
+		protected var _model : IPageModel;
 
 		/**
 		 * @inheritDoc
 		 */
-		[Inject]
-		public var injector : IInjectorWrapper;
-
-		/**
-		 * @inheritDoc
-		 */
-		[Inject]
-		public var mediatorMap : IMediatorMapWrapper;
-
-		/**
-		 * @inheritDoc
-		 */
-		[Inject]
-		public var commandMap : ICommandMapWrapper;
-
-		/**
-		 * @inheritDoc
-		 */
-		[Inject]
-		public var viewMap : IViewMapWrapper;
-
-		/**
-		 * @inheritDoc
-		 */
-		[Inject]
 		public var contextView : DisplayObjectContainer;
 
 		
@@ -65,7 +38,7 @@ package org.handbones.base
 
 		public function preStartup() : void
 		{
-			dispatch(new PageEvent(PageEvent.STARTUP, _settings));
+			dispatch(new PageEvent(PageEvent.STARTUP, _model));
 		}
 
 		/**
@@ -73,7 +46,7 @@ package org.handbones.base
 		 */
 		public function startup() : void 
 		{
-			dispatch(new PageEvent(PageEvent.STARTUP_COMPLETE, _settings));
+			dispatch(new PageEvent(PageEvent.STARTUP_COMPLETE, _model));
 		}
 
 		/**
@@ -81,7 +54,7 @@ package org.handbones.base
 		 */
 		public function preShutdown() : void
 		{
-			dispatch(new PageEvent(PageEvent.SHUTDOWN, _settings));
+			dispatch(new PageEvent(PageEvent.SHUTDOWN, _model));
 
 			while(numChildren > 0)
 			{
@@ -99,7 +72,7 @@ package org.handbones.base
 		 */
 		public function shutdown() : void 
 		{
-			dispatch(new PageEvent(PageEvent.SHUTDOWN_COMPLETE, _settings));
+			dispatch(new PageEvent(PageEvent.SHUTDOWN_COMPLETE, _model));
 		}
 
 		/**
@@ -120,14 +93,14 @@ package org.handbones.base
 			_eventDispatcher = value;
 		}
 
-		public function get settings() : PageSettings 
+		public function get model() : IPageModel
 		{
-			return _settings;
+			return _model;
 		}
 
-		public function set settings(settings : PageSettings) : void 
+		public function set model(model : IPageModel) : void
 		{
-			_settings = settings;
+			_model = model;
 		}
 
 		/**
@@ -140,6 +113,31 @@ package org.handbones.base
 			if(eventDispatcher.hasEventListener(event.type))
  		        return eventDispatcher.dispatchEvent(event);
 			return false;
+		}
+
+		public function get injector() : IPageInjector
+		{
+			return _model.injector;
+		}
+
+		public function get mediatorMap() : IPageMediatorMap
+		{
+			return _model.mediatorMap;
+		}
+
+		public function get commandMap() : IPageCommandMap
+		{
+			return _model.commandMap;
+		}
+
+		public function get viewMap() : IPageViewMap
+		{
+			return _model.viewMap;
+		}
+
+		public function get groupLoader() : IGroupLoader
+		{
+			return _model.groupLoader;
 		}
 	}
 }

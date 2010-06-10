@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="HandBones" basedir="." default="asdoc">
+<project name="HandBones" basedir="." default="build">
 
 	<!-- set up a prefix for all environment variables -->
 	<property environment="env." />
@@ -9,6 +9,25 @@
 
 	<!-- import the settings -->
 	<property file="${basedir}/build.properties" />
+
+	<!-- Check OS type -->
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+
+	<condition property="isLinux">
+		<os family="unix" />
+	</condition>
+
+	<target name="initWindows" if="isWindows">
+		<property name="asdoc.app" value="${asdoc.win}" />
+	</target>
+
+	<target name="initUnix" if="isLinux">
+		<property name="asdoc.app" value="${asdoc.unix}" />
+	</target>
+
+	<target name="initOS" depends="initWindows, initUnix" />
 
 	<!-- Clean bin of old SWC's before compile -->
 	<target name="clean">
@@ -35,6 +54,7 @@
 			<!-- Keep the magic alive. -->
 			<arg value="-keep-as3-metadata+=Inject" />
 			<arg value="-keep-as3-metadata+=PostConstruct" />
+			<arg value="-keep-as3-metadata+=Event" />
 
 			<!-- Boolean mosh pit! -->
 			<arg value="-incremental=true" />
@@ -42,8 +62,6 @@
 			<arg value="-verbose-stacktraces=true" />
 			<arg value="-headless-server=true" />
 
-			<!-- Exclude 3rd parties -->
-			<!-- <arg value="-exclude-dependencies=true"/> -->
 		</java>
 
 		<echo>[compile] Removing cache file from ${project.bin}</echo>
@@ -52,9 +70,9 @@
 		<echo>[compile] Release SWC ${project.name.versioned}.swc created successfully</echo>
 	</target>
 
-	<target name="asdoc" depends="compile">
+	<target name="asdoc" depends="initOS">
 		<echo>[asdoc] Generating ASDOC documentation</echo>
-		
+
 		<mkdir dir="${project.doc}" />
 
 		<!-- delete all files in the doc dir -->
@@ -63,12 +81,27 @@
 		</delete>
 
 		<!-- create docs -->
-		<exec executable="${asdoc.exe}">
+		<exec executable="${asdoc.app}">
 			<arg line="	-doc-sources '${project.src}'" />
 			<arg line=' -library-path ${project.libs}' />
 			<arg line=" -output '${project.doc}'" />
 			<arg line=" -main-title '${asdoc.mainTitle}'" />
 			<arg line=" -window-title '${asdoc.windowTitle}'" />
 		</exec>
+
+		<echo>[asdoc] Deleting old ASDoc zip</echo>
+		<delete>
+			<fileset dir="${project.bin}" includes="*.zip" />
+		</delete>
+
+		<echo>[asdoc] Zipping ${project.doc} folder to ${project.name.versioned}-ASDoc.zip</echo>
+		<zip destfile="${project.bin}/${project.name.versioned}-ASDoc.zip" basedir="${project.doc}" />
+
+		<echo>[asdoc] Deleting ${project.doc} folder</echo>
+		<delete dir="${project.doc}" />
+	</target>
+	
+	<target name="build" depends="compile, asdoc" >
+		<echo>[build] COMPLETE</echo>
 	</target>
 </project>

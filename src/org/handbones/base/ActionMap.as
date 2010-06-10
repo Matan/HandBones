@@ -1,9 +1,9 @@
 package org.handbones.base 
 {
 	import org.handbones.core.IActionMap;
-	import org.handbones.events.NavigatorEvent;
-	import org.handbones.events.TrackingEvent;
+	import org.handbones.events.ActionMapEvent;
 	import org.handbones.model.SettingsModel;
+	import org.handbones.model.vo.ActionVO;
 
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -33,7 +33,7 @@ package org.handbones.base
 			var mL : int = matchedActions.length;
 			for(var a : int = 0;a < mL;a++) 
 			{
-				var action : Action = matchedActions[a];
+				var action : ActionVO = matchedActions[a];
 				
 				var callback : Function = function(event : Event):void
 				{
@@ -62,7 +62,7 @@ package org.handbones.base
 			var mL : int = matchedActions.length;
 			for(var a : int = 0;a < mL;a++) 
 			{
-				var action : Action = matchedActions[a];
+				var action : ActionVO = matchedActions[a];
 				
 				var mapping : Mapping;
 				var i : int = _mappings.length;
@@ -88,28 +88,13 @@ package org.handbones.base
 			}
 		}
 
-		protected function executeAction(event : Event, action : Action, listener : Function = null) : void 
+		protected function executeAction(event : Event, action : ActionVO, listener : Function = null) : void 
 		{
 			//Call custom listener
 			if(listener != null)
 				listener(event);
-			
-			//Navigation
-			var navigatorEvent : NavigatorEvent = new NavigatorEvent(NavigatorEvent.HANDLE_ACTION);
-			navigatorEvent.action = action;
-			dispatch(navigatorEvent);
-			
-			//Tracking
-			var tL : int = action.trackActions.length;
-			for(var i : int = 0;i < tL;i++) 
-			{
-				var trackAction : TrackAction = action.trackActions[i];
 				
-				var trackingEvent : TrackingEvent = new TrackingEvent(TrackingEvent.TRACK);
-				trackingEvent.url = trackAction.url;				trackingEvent.category = trackAction.category;				trackingEvent.action = trackAction.action || event.type;				trackingEvent.label = trackAction.label;				trackingEvent.value = trackAction.value;
-				
-				dispatch(trackingEvent);
-			}
+			dispatch(new ActionMapEvent(ActionMapEvent.EXECUTE_ACTION, action));
 		}
 
 		protected function getActionsByRef(reference : String) : Array 
@@ -119,7 +104,7 @@ package org.handbones.base
 			var dL : int = _actions.length;
 			for(var i : int = 0;i < dL;i++) 
 			{
-				var action : Action = _actions[i];
+				var action : ActionVO = _actions[i];
 				
 				if(action.ref == reference)
 					matched.push(action);
@@ -156,7 +141,7 @@ package org.handbones.base
 	}
 }
 
-import org.handbones.base.Action;
+import org.handbones.model.vo.ActionVO;
 
 import flash.events.IEventDispatcher;
 
@@ -169,6 +154,6 @@ class Mapping
 	public var eventClass : Class;
 	public var callback : Function;
 	public var useCapture : Boolean;
-	public var action : Action;
+	public var action : ActionVO;
 	public var listener : Function;
 }

@@ -1,8 +1,8 @@
 package org.handbones.mvcs 
 {
 	import org.handbones.base.ActionMap;
-	import org.handbones.base.PageSettings;
 	import org.handbones.core.IActionMap;
+	import org.handbones.core.IPageModel;
 	import org.robotlegs.mvcs.Mediator;
 
 	/**
@@ -11,7 +11,7 @@ package org.handbones.mvcs
 	public class PageActionMediator extends Mediator 
 	{
 		[Inject]
-		public var pageSettings : PageSettings;
+		public var pageModel : IPageModel;
 
 		protected var _actionMap : IActionMap;
 
@@ -28,7 +28,7 @@ package org.handbones.mvcs
 
 		protected function get actionMap() : IActionMap 
 		{
-			return _actionMap || (_actionMap = new ActionMap(eventDispatcher, pageSettings.actions));
+			return _actionMap || (_actionMap = new ActionMap(eventDispatcher, pageModel.actions));
 		}
 	}
 }

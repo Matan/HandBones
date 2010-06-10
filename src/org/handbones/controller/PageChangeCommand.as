@@ -1,17 +1,17 @@
 package org.handbones.controller 
 {
-	import org.handbones.core.ITracker;
+	import org.handbones.core.IPageModel;
 	import org.handbones.core.INavigator;
-	import org.handbones.model.SettingsModel;
+	import org.handbones.core.ITracker;
 	import org.handbones.events.NavigatorEvent;
-	import org.handbones.model.PageModel;
-	import org.handbones.base.PageSettings;
+	import org.handbones.model.NavigatorModel;
+	import org.handbones.model.SettingsModel;
 	import org.robotlegs.mvcs.Command;
 
 	/**
 	 * @author Matan Uberstein
 	 */
-	public class PageChangeCommand extends Command 
+	internal class PageChangeCommand extends Command 
 	{
 
 		[Inject]
@@ -27,28 +27,24 @@ package org.handbones.controller
 		public var tracker : ITracker;
 
 		[Inject]
-		public var pageModel : PageModel;
+		public var navModel : NavigatorModel;
 
 		override public function execute() : void 
 		{
-			injector.unmap(PageSettings);
-			
 			var title : String = settingsModel.titleBody;			var track : String = "/";
 			
 			if(event.page)
 			{
-				var pageSettings : PageSettings = event.page.settings;
+				var pageVo : IPageModel = event.page.model;
 				
-				injector.mapValue(PageSettings, pageSettings);
-				
-				title = pageSettings.title;
-				track = pageSettings.address;
+				title = pageVo.title;
+				track = pageVo.address;
 			}
 			
 			navigator.setTitle(settingsModel.titlePrefix + title + settingsModel.titleSuffix);
 			tracker.trackPageview(track);
 				
-			pageModel.currentPage = event.page;
+			navModel.currentPage = event.page;
 		}
 	}
 }

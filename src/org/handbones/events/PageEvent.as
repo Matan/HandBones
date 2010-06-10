@@ -1,6 +1,6 @@
 package org.handbones.events 
 {
-	import org.handbones.base.PageSettings;
+	import org.handbones.core.IPageModel;
 
 	import flash.events.Event;
 
@@ -14,19 +14,19 @@ package org.handbones.events
 		public static const SHUTDOWN : String = "SHUTDOWN";
 		public static const SHUTDOWN_COMPLETE : String = "SHUTDOWN_COMPLETE";
 
-		public static const PAGE_CHANGE : String = "PAGE_CHANGE";
+		public static const LOADED : String = "LOADED";
 
-		protected var _settings : PageSettings;
+		protected var _model : IPageModel;
 
-		public function PageEvent(type : String, settings : PageSettings = null)
+		public function PageEvent(type : String, model : IPageModel = null)
 		{
 			super(type);
-			_settings = settings;
+			_model = model;
 		}
 
-		public function get settings() : PageSettings
+		public function get model() : IPageModel
 		{
-			return _settings;
+			return _model;
 		}
 	}
 }

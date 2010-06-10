@@ -1,6 +1,6 @@
 package org.handbones.model 
 {
-	import org.handbones.base.PageSettings;
+	import org.handbones.core.IPageModel;
 	import org.robotlegs.mvcs.Actor;
 
 	/**
@@ -10,6 +10,7 @@ package org.handbones.model
 	{
 		public var pages : Array;
 		public var actions : Array;
+		public var assets : Array;
 
 		public var titleBody : String;
 		public var titlePrefix : String;
@@ -26,32 +27,30 @@ package org.handbones.model
 		{
 		}
 
-		public function getPageSettingsById(id : String) : PageSettings 
+		public function getPageModelById(id : String) : IPageModel 
 		{
 			var dL : int = pages.length;
 			for(var i : int = 0;i < dL;i++) 
 			{
-				var vo : PageSettings = pages[i];
-				if(vo.id == id)
-					return vo;
+				var model : IPageModel = pages[i];
+				if(model.id == id)
+					return model;
 			}
 			return null;
 		}
 
-		public function getPageSettingsByAddress(address : String) : PageSettings 
+		public function getPageModelByAddress(address : String) : IPageModel 
 		{
 			address = (address) ? address.toLowerCase() : "";
 			
 			var dL : int = pages.length;
-			
 			for(var i : int = 0;i < dL;i++) 
 			{
-				var vo : PageSettings = pages[i];
+				var model : IPageModel = pages[i];
 				
-				if(vo.address.toLowerCase() == address)
-					return vo;
+				if(model.address.toLowerCase() == address)
+					return model;
 			}
-			
 			return null;
 		}
 	}

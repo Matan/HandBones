@@ -1,6 +1,10 @@
 package org.handbones.core 
 {
-	import org.handbones.base.PageSettings;
+	import org.assetloader.core.IGroupLoader;
+	import org.handbones.core.page.IPageCommandMap;
+	import org.handbones.core.page.IPageInjector;
+	import org.handbones.core.page.IPageMediatorMap;
+	import org.handbones.core.page.IPageViewMap;
 
 	import flash.display.ISprite;
 
@@ -48,20 +52,18 @@ package org.handbones.core
 		 */
 		function shutdown() : void
 
-		/**
-		 * The <code>PageSettings</code> defined in init settings.
-		 * 
-		 * @return <code>PageSettings</code>.
-		 * 
-		 * @see org.handbones.model.PageSettings
-		 */
-		function get settings() : PageSettings
+		function get model() : IPageModel 
 
-		/**
-		 * The <code>PageSettings</code> instance is given to page directly after it is loaded.
-		 * 
-		 * @see org.handbones.model.PageSettings
-		 */
-		function set settings(value : PageSettings) : void
+		function set model(value : IPageModel) : void 
+
+		function get injector() : IPageInjector
+
+		function get mediatorMap() : IPageMediatorMap
+
+		function get commandMap() : IPageCommandMap
+
+		function get viewMap() : IPageViewMap
+
+		function get groupLoader() : IGroupLoader
 	}
 }
