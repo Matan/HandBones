@@ -1,0 +1,186 @@
+The purpose of the document is to explain the roll of the site.xml file and each of the nodes it can contain.
+
+h2. Table on Contents
+
+# "Site node":#site
+# "Title node":#title
+# "Tracker node":#tracker
+# "Shell node":#shell
+# "Data node":#data
+# "Asset node":#asset
+# "Action node":#action
+** "Track node":#track
+# "Page node":#page
+# "Sample":#sample
+
+
+h2(#site). &lt;site&gt;
+
+Root node. Does not have any attributes, but contains all the definitions below.
+
+h2(#title). &lt;title&gt;
+
+Settings for the browser title bar.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|prefix|no||Prefixes to body of title|
+|body|yes||Body of the title, will also be the root title and will be the title of pages that does not have a title specified.|
+|suffix|no||Appends to body of title.|
+
+h3. Conclusion:
+
+On root, title will result in: <code>prefix + body + suffix</code>
+On a site page, title will result in: <code>prefix + titleOfPage + suffix</code> [where <code>titleOfPage</code> defaults to <code>body</code>]
+
+h2(#tracker). &lt;tracker&gt;
+
+Google Analytic node, defines behaviour of the GA-lib.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|uid|yes||Google tracking code generated from Google.|
+|debug|no|false|True will enabled GA-lib’s visual debugging mode.|
+
+h2(#shell). &lt;shell&gt;
+
+Shell parameters.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|dispatchContextStartupComplete|no|true|At default HandBones will automatically dispatch <code>ContextEvent.STARTUP_COMPLETE</code> after the site.xml has been loaded and parsed. If you need to do some custom injections based on the settingsModel, you need to switch this too false and created your own command. This command should handle your injections and dispatch <code>ContextEvent.STARTUP_COMPLETE</code>.|
+
+h2(#data). &lt;data&gt;
+
+This node can contain any data you like. This node will be available on the settingsModel.
+
+h2(#asset). &lt;asset&gt;
+
+The asset node defines an asset to be loaded via the AssetLoader library. The assets defined in the root of the site site node will be directly added to the loading queue AFTER all the pages have been added. These will then sequentially load in the background. It might be a good idea looking at "AssetLoader":http://github.com/Matan/AssetLoader as well.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|id|yes||The id of the asset for your reference.|
+|src|yes||Path to the asset.|
+|type|no|AUTO|The type of asset being loaded. AssetLoader will try and determine what asset type is being loaded.|
+|retries|no|3|Amount of times AssetLoader will try and load the asset in event of failure.|
+|priority|no||The priority of the asset being loaded. Higher value means closer to the front of the queue. At default AssetLoader will automatically assign the priority in order of addition to the queue. HandBones starts adding assets from top to bottom, thus loading the asset you define on after the other.|
+|onDemand|no|false|If true you must invoke the loading of this asset manually, thus this asset does not form part of the queue.|
+|preventCache|no|false|If true a AssetLoader adds unique query variable to the request, thus preventing the browser from storing the result in the local cache.|
+
+h2(#action). &lt;action&gt;
+
+Actions are invoked by events and coupled to you code by a reference id. At this point actions mainly focus on navigation, but they can listen to shell events and perform anything.
+
+h3. Can Contain:
+
+* &lt;track&gt; - Once the action is triggered it will trigger the tracking nodes defined within. Actions can contain any amount of track nodes. They will be executed in order of definition.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|event|no|click|Defines the event type on which the action is triggered.|
+|ref|no||Actions without a custom event type specified will be automatically mapped to the shell dispatcher.|
+|gotoPageId|no||This will navigate the site to the page id defined.|
+|changeAddress|no||This will navigate the site to the address defined.|
+|keepHistory|no|true|Switching this to false will cause the browser not keep history of this action only, afterwards history is switched back on.|
+|invokeUrl|no||This will invoke the url defined.|
+|urlWindow|no|_blank|Tells the browser how to open the url.|
+
+h2(#track). &lt;track&gt;
+
+Invokes Google Analytics. Track nodes can inherit values from their containing action nodes. You can specify variables within the attributes by surrounding the variable name with curly brackets.
+
+<pre>
+<code>
+<action ref=”RL-Btn” invokeUrl=”http://www.robotlegs.org” >
+	<track category=”LinkUsage” action=”clicked-{ref}” label=“{invokeUrl}” />
+</action>
+</code>
+</pre>
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|url|no||Performs a “trackPageview” of the url specified.|
+|category|yes if url not defined||Category of the event to be tracked.|
+|action|yes if url not defined|defaults to the event type that was triggered|The action that occurred.|
+|label|no||Label of the tracking event.|
+|value|no|0|Numeric tracking value.|
+
+h2(#page). &lt;page&gt;
+
+This node defines pages within your site.
+
+h3. Can Contain:
+
+* &lt;data&gt; - Supplied to page via IPageModel.
+* &lt;asset&gt; - Asset to be loaded in this page's scope. These assets will form part of this page's IGroupLoader instance.
+* &lt;action&gt; - Define actions within the scope of this page.
+
+h3. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|id|yes||Unique string that defines this page.|
+|src|yes||Path to the swf, relative path will work in accordance with the “flash base path”.|
+|address|no||Address that will be shown in browser’s address bar. If you do not specify an address this page will become the root page.|
+|title|no|defaults to the "root" title.|The title to be shown on browser’s title bar wrapped within title settings defined by the title node.|
+|loadPriority|no|assigned by order of appearance|The load priority, higher value will cause asset to move up in queue and be loaded before other pages.|
+|loadOnDemand|no|false|If true, the page will only be loaded once the user navigates to the page or you manually invoke the loading process.|
+|assetGroupId|no|<code>id + "ASSET_GROUP"</code>|A IGroupLoader is created for each page. You can retrieve this loader via IAssetLoader using this id.|
+
+h1(#sample). Sample site.xml
+
+<pre>
+<code>
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+
+	<!-- SETTINGS -->
+	<title prefix="" body="Root Page" suffix=" | HandBones" />
+	<tracker uid="UA-XXXXXXXX-X" debug="false" />
+	<shell dispatchContextStartupComplete="true" />
+	
+	<data>
+		<handbones version="0.5.0" />
+	</data>
+	
+	<!-- ROOT ACTIONS -->
+	<action ref="HELLO_WORLD_BTN" gotoPageId="HELLO_WORLD_PAGE" >
+		<track category="LinkUsage" action="{ref}" label="{gotoPageId}" />
+	</action>
+	<action ref="GALLERY_BTN" gotoPageId="GALLERY_PAGE" >
+		<track category="LinkUsage" action="{ref}" label="{gotoPageId}" />
+	</action>
+	
+	<!-- COMMON ACTIONS -->
+	<action ref="GOTO_ROOT" changeAddress="/" >
+		<track category="LinkUsage" action="{ref}" label="CommonLink" />
+	</action>
+	
+	<!-- PAGES -->
+	<page id="HELLO_WORLD_PAGE" title="Hello World" address="HelloWorld" src="pages/HelloWorldPage.swf" >
+	</page>
+	
+	<page id="GALLERY_PAGE" title="Gallery" address="Gallery" src="pages/GalleryPage.swf" >
+		<asset id="GALLERY_XML" src="data/gallery.xml" />
+	</page>
+	
+	<!-- FOOTER LINKS -->
+	<action ref="FOOTER_BLOG" invokeUrl="http://www.matanuberstein.co.za" window="_blank">
+		<track category="LinkUsage" action="{ref}" label="{invokeUrl}" />
+	</action>
+	<action ref="FOOTER_ASDOC" invokeUrl="asdocs/index.html" window="_blank">
+		<track category="LinkUsage" action="{ref}" label="{invokeUrl}" />
+	</action>
+	<action ref="FOOTER_ROBOTLEGS" invokeUrl="http://www.robotlegs.org" window="_blank">
+		<track category="LinkUsage" action="{ref}" label="{invokeUrl}" />
+	</action>
+	
+</site>
+</code>
+</pre>
