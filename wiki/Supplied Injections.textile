@@ -18,14 +18,14 @@ These injections can be done anywhere you want at any time.
 h2(#anymodels). Models
 
 |_.Class|_.Description|
-|"SettingsModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/SettingsModel.as|This is the parsed result of your site.xml. You probably won't need to use this model unless you defined a data node in your site.xml.|
+|"SettingsModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/SettingsModel.as|This is the parsed result of your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout. You probably won't need to use this model unless you defined a data node in your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout.|
 |"NavigatorModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/NavigatorModel.as|Very simple model, keeps reference to the current page and the previous page. You'll use this when building your "page switching" view/mediator.|
 |"SizeModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/SizeModel.as|The SizeModel keeps track of the stage dimensions and page dimensions. You use this everywhere your view components are dependent on the size of the stage and/or size of the page. You need to manually define the page size. In most cases the page size is dependent on the stage size. Simply map a command to listen to the <code>SizeEvent.RESIZE</code> and manually set what the page size should be. The SizeModel will then dispatch <code>SizeEvent.PAGE_RESIZE</code>.|
 
 h2(#anyservices). Services
 
 |_.Class|_.Description|
-|"ISettingsService":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/ISettingsService.as|You can define where and what your site.xml is and called, so you must manually invoke the loading of the xml file by injecting this service and pass it the url to the file. This will kick off the HandBones internals.|
+|"ISettingsService":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/ISettingsService.as|You can define where and what your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout is and called, so you must manually invoke the loading of the xml file by injecting this service and pass it the url to the file. This will kick off the HandBones internals.|
 |"IAssetLoader":http://github.com/Matan/AssetLoader/blob/master/src/org/assetloader/core/IAssetLoader.as|Used for multi file loading through out HandBones. Please see "AssetLoader":http://github.com/Matan/AssetLoader on github.|
 
 h2(#anyutilities). Utilities
@@ -47,7 +47,7 @@ h2(#pageviews). Views
 h2(#pagemodels). Models
  
 |_.Class|_.Description|
-|"IPageModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/IPageModel.as|At init phase each page defined in the site.xml is given it's very own model. This contains reference to parsed xml and their custom mapping instances.|
+|"IPageModel":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/IPageModel.as|At init phase each page defined in the "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout is given it's very own model. This contains reference to parsed xml and their custom mapping instances.|
 
 h2(#pagemappers). Mappers
 
