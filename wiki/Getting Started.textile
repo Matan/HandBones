@@ -1,0 +1,340 @@
+You have to understand "Robotlegs":http://www.robotlegs.org and the "MVCS":http://wiki.github.com/robotlegs/robotlegs-framework/best-practices#mvcs design pattern before continuing, these are core to HandBones. You'll also need an IDE that can compile swfs from any AS file in your source folder, like "FDT":http://www.fdt.powerflasher.com.
+
+h1. Table of Contents
+
+# "Setting up":#setup
+# "Site XML":#sitexml
+# "Loading the site XML":#loadxml
+# "Handle ContextEvent.STARTUP_COMPLETE event":#startupcomplete
+# "Handle NavigatorEvent.PAGE_CHANGE event":#pagechange
+# "Conclusion":#conclusion
+
+h1(#setup). Setting up
+
+Create a stardard project layout.
+
+* src
+* bin
+* libs
+
+Copy the HandBones swc into the libs folder and add it as a source path. Create the standard MVCS package layout in your src folder with a pages package.
+
+For this example, lets say you are making a website www.donkey.com and it has two pages; Contact Us and Gallery.
+
+* src
+** com
+*** donkey
+**** controller
+**** model
+**** **pages**
+***** ContactUsPage.as - extends Page
+***** GalleryPage.as - extends Page
+**** services
+**** view
+**** DonkeyContext.as - extends HandBonesContext
+** Main.as - extends Sprite
+
+Setup a debug/run config for Main.as (Note: you don't have to call it Main.as) to compile to your bin folder. Also create debug/run configs for your pages, but let them compile to a sub folder of bin (e.g. pages, this just makes things clearer).
+
+Each page will now start it's own tier of MVCS, forming is own little application. We'll get to this later.
+
+h1(#sitexml). Site XML
+
+At this point you can setup your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file. Please refer to [[Site XML Layout]] wiki page.
+
+Create the file in you bin folder under data. Please note, you don't have to call the xml file "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout, you define where the file is located and what it is called.
+
+* bin
+** data
+*** site.xml
+
+For this example it should look something like this:
+
+<pre>
+<code>
+<site>
+
+	<!-- SETTINGS -->
+	<title prefix="" body="Home" suffix=" | Donkey.com" />
+	
+	<!-- PAGES -->
+	<page id="CONTACT_US_PAGE" title="Contact Us" address="ContactUs" src="pages/ContactUsPage.swf" >
+	</page>
+	
+	<page id="GALLERY_PAGE" title="Gallery" address="Gallery" src="pages/GalleryPage.swf" >
+	</page>
+	
+</site>
+</code>
+</pre>
+
+h1(#loadxml). Invoke loading of site.xml
+
+Loading of this xml file is left up to you to define. Best way would be to pass the path to flash via FlashVars.
+
+In <code>DonkeyContext.as</code> override the startup function, but call <code>super.startup();</code>. Map a command to fire on <code>ContextEvent.STARTUP</code> in your startup function.
+
+<pre>
+<code>
+package com.donkey
+{
+	import com.donkey.controller.StartupCommand;
+	
+	import org.handbones.mvcs.HandBonesContext;
+	import org.robotlegs.base.ContextEvent;
+
+	import flash.display.DisplayObjectContainer;
+
+	public class DonkeyContext extends HandBonesContext 
+	{
+		public function SampleSiteContext(contextView : DisplayObjectContainer = null)
+		{
+			super(contextView);
+		}
+
+		override public function startup() : void 
+		{
+			commandMap.mapEvent(ContextEvent.STARTUP, StartupCommand, ContextEvent, true);
+			
+			super.startup();
+		}
+	}
+}
+</code>
+</pre>
+
+Usually in Robotlegs the <code>ContextEvent.STARTUP_COMPLETE</code> fires when you call <code>super.startup();</code>. HandBones extends the process, so <code>ContextEvent.STARTUP_COMPLETE</code> will only fire once the "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout has been loaded and parsed. Calling <code>super.startup();</code> in this case will dispatch <code>ContextEvent.STARTUP</code> starting the process.
+
+Create the StartupCommand in your controller package and inject ISettingService. For this example hard coding the xml path. I would be a good idea passing the path via FlashVars.
+
+<pre>
+<code>
+package com.donkey.controller 
+{
+	import org.handbones.core.ISettingsService;
+	import org.robotlegs.mvcs.Command;
+	
+	import flash.net.URLRequest;
+	
+	public class StartupCommand extends Command 
+	{
+		[Inject]
+		public var settingsService : ISettingsService;
+		
+		override public function execute() : void 
+		{
+			settingsService.load(new URLRequest("data/site.xml"));
+		}
+	}
+}
+</code>
+</pre>
+
+h1(#startupcomplete). Handle ContextEvent.STARTUP_COMPLETE event
+
+After the "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout has been loaded and parsed, HandBones (by default see [[Site XML Layout]]) dispatches <code>ContextEvent.STARTUP_COMPLETE</code>.
+
+In your view package create the following: RootCanvas extending Sprite; RootCanvasMediator extending Mediator
+
+Map a command that adds your primary view the <code>contextView</code>. A good model to follow is created a RootCanvas view that contains your primary view components that make up the your site. (e.g. Header, Footer, etc)
+
+<pre>
+<code>
+package com.donkey.controller 
+{
+	import org.robotlegs.mvcs.Command;
+	
+	import flash.net.URLRequest;
+	
+	public class StartupCompleteCommand extends Command 
+	{
+		override public function execute() : void 
+		{
+			//RootCavas being a display object that contains all your other primary view components.
+			contextView.addChild(new RootCanvas());
+		}
+	}
+}
+</code>
+</pre>
+
+h1(#pagechange). Handle NavigatorEvent.PAGE_CHANGE event
+
+This is one of the most important events within HandBones. It notifies you when your site has changed page, as the name implies. This carries an import variable, namely <code>page</code>. This is the actual instance of the swf loaded, but can also be retrieved via NavigatorModel and/or IAssetLoader (e.g. <code>navigatorModel.currentPage</code> AND/OR <code>var page : IPage = assetLoader.getAsset("myPageId");</code>).
+
+Important thing to note is; when the page variable is null it means that the user has navigated to the "root page". The "root page" isn't really a page, but it functions as one.
+
+You'll need a view component to handle this event, let's call it <code>PageContainer</code>. Remember the following is merely guidelines, you can handle this in anyway that you want.
+
+**PageContainerMediator**
+
+<pre>
+<code>
+package com.donkey.view 
+{
+	import org.robotlegs.mvcs.Mediator;
+	import org.handbones.core.IPage;
+	import org.handbones.events.NavigatorEvent;
+	import org.handbones.events.SizeEvent;
+	import org.handbones.model.NavigatorModel;
+
+	import flash.events.MouseEvent;
+
+	public class PageContainerMediator extends Mediator 
+	{
+
+		[Inject]
+		public var view : PageContainer;
+
+		[Inject]
+		public var navModel : NavigatorModel;
+		
+		override public function onRegister() : void 
+		{
+			eventMap.mapListener(eventDispatcher, NavigatorEvent.PAGE_CHANGE, pageChange_handler, NavigatorEvent);
+			eventMap.mapListener(eventDispatcher, SizeEvent.PAGE_RESIZE, pageResize_handler, SizeEvent);
+			
+			view.init();
+		}
+
+		override public function onRemove() : void 
+		{
+			view.destroy();
+		}
+
+		protected function pageChange_handler(event : NavigatorEvent) : void 
+		{
+			var currentPage : IPage = navModel.currentPage;
+			if(currentPage)
+				view.show(currentPage);
+			else
+				view.hide();
+		}
+
+		protected function pageResize_handler(event : SizeEvent) : void 
+		{
+			view.setPageSize(event.pageWidth, event.pageHeight);
+		}
+	}
+}
+</code>
+</pre>
+
+**PageContainer**
+
+<pre>
+<code>
+package com.donkey.view 
+{
+	import mu.tweens.TweenBundle;
+
+	import org.handbones.core.IPage;
+	import org.libspark.betweenas3.BetweenAS3;
+	import org.libspark.betweenas3.easing.Back;
+
+	import flash.display.DisplayObject;
+	import flash.display.Sprite;
+	import flash.geom.Rectangle;
+
+	public class PageContainer extends Sprite
+	{
+		protected var _currentPage : IPage;
+		protected var _twn : TweenBundle;
+		protected var _onScreen : Boolean;
+		protected var _enabled : Boolean;
+		protected var _pageWidth : Number;
+		protected var _pageHeight : Number;
+
+		public function PageContainer()
+		{
+			scaleX = scaleY = .8;
+			alpha = 0;
+			enabled = false;
+		}
+
+		public function init() : void
+		{
+			_twn = new TweenBundle();
+		}
+
+		public function destroy() : void
+		{
+			_twn.reset();
+			_twn = null;
+			
+			if(_currentPage && contains(DisplayObject(_currentPage)))
+				removeChild(DisplayObject(_currentPage));
+			
+			_currentPage = null;
+		}
+
+		public function show(currentPage : IPage) : void 
+		{
+			var previousPage : IPage = _currentPage;
+			_currentPage = currentPage;
+			
+			_currentPage.alpha = 0;
+				
+			_twn.reset();
+				
+			if(!_onScreen)
+				_twn.addTween(BetweenAS3.to(this, {scaleX:1, scaleY:1, alpha:1}, .3, Back.easeOut));
+				
+			if(previousPage)
+				_twn.addTween(BetweenAS3.to(previousPage, {alpha:0}, .3, Back.easeOut));
+					
+			_twn.addTween(BetweenAS3.to(_currentPage, {alpha:1}, .3, Back.easeOut));
+				
+			addChild(DisplayObject(_currentPage));
+				
+			_twn.parallel();
+				
+			updateClipping();
+				
+			_onScreen = true;
+			enabled = true;
+		}
+
+		public function hide() : void 
+		{
+			_twn.reset();
+			_twn.addTween(BetweenAS3.to(this, {scaleX:.8, scaleY:.8, alpha:0}, .3, Back.easeOut));
+			_twn.addTween(BetweenAS3.removeFromParent(DisplayObject(_currentPage)));
+			_twn.serial();
+			
+			_onScreen = false;
+			enabled = false;
+		}
+
+		public function setPageSize(width : Number, height : Number) : void 
+		{
+			_pageWidth = width;
+			_pageHeight = height;
+			
+			updateClipping();
+		}
+
+		protected function updateClipping() : void
+		{
+			if(_currentPage)
+				_currentPage.scrollRect = new Rectangle(0, 0, _pageWidth, _pageHeight);
+		}
+
+		public function get enabled() : Boolean 
+		{
+			return _enabled;
+		}
+
+		public function set enabled(value : Boolean) : void 
+		{
+			_enabled = value;
+			mouseChildren = mouseEnabled = tabChildren = tabEnabled = _enabled;
+		}
+	}
+}
+</code>
+</pre>
+
+h1(#conclusion). Conclusion
+
+After these few steps your site is ready and waiting for expansion. Please see the "HandBones-Samples":http://github.com/Matan/HandBones-Samples. It's not the same as mentioned above, but it follows the same line.

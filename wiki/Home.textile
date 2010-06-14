@@ -1,0 +1,18 @@
+Welcome to the official HandBones wiki.
+
+h1(#overview). Overview
+
+HandBones is designed to remove mundane tasks from website development. Letting you focus on the important stuff, like awesome rollover effects. ;-) Your website is configured via an external xml file, where you map out how your site will react, track and function.
+
+h1(#different). What makes HandBones different from other website frameworks?
+
+HandBones is written with and for "Robotlegs":http://www.robotlegs.org and using the magic of "SwiftSuspenders":http://github.com/tschneidereit/SwiftSuspenders to inject dependencies. HandBones aims to build  modular websites, but still function as one application. Thus we have the Page tier added to the "Robotlegs MVCS":http://wiki.github.com/robotlegs/robotlegs-framework/best-practices#mvcs. Each page will be is own swf, compiled from your application. Giving you the freedom to have "heavy" pages with a lot of assets to pages that are relatively small. No cross compiling will occur. Pages are automatically wired to your application when they are loaded. Pages simulate a new context, making it easy to make new injection rules and view mappings. These rules will automatically be unmapped once the page has been shutdown and destroyed.
+
+h1(#dependencies). Dependencies
+
+HandBones depends on a few libraries, but these are all be compiled into the HandBones swc.
+
+* "Robotlegs":http://www.robotlegs.org
+* "AssetLoader":http://github.com/Matan/AssetLoader
+* "Google Analytics For Flash":http://code.google.com/p/gaforflash
+* "SWFAddress":http://www.asual.com/swfaddress

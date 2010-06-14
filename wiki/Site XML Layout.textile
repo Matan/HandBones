@@ -1,6 +1,6 @@
 The purpose of the document is to explain the roll of the site.xml file and each of the nodes it can contain.
 
-h2. Table on Contents
+h1. Table of Contents
 
 # "Site node":#site
 # "Title node":#title
@@ -14,54 +14,54 @@ h2. Table on Contents
 # "Sample":#sample
 
 
-h2(#site). &lt;site&gt;
+h1(#site). &lt;site&gt;
 
 Root node. Does not have any attributes, but contains all the definitions below.
 
-h2(#title). &lt;title&gt;
+h1(#title). &lt;title&gt;
 
 Settings for the browser title bar.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |prefix|no||Prefixes to body of title|
 |body|yes||Body of the title, will also be the root title and will be the title of pages that does not have a title specified.|
 |suffix|no||Appends to body of title.|
 
-h3. Conclusion:
+h2. Conclusion:
 
 On root, title will result in: <code>prefix + body + suffix</code>
 On a site page, title will result in: <code>prefix + titleOfPage + suffix</code> [where <code>titleOfPage</code> defaults to <code>body</code>]
 
-h2(#tracker). &lt;tracker&gt;
+h1(#tracker). &lt;tracker&gt;
 
 Google Analytic node, defines behaviour of the GA-lib.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |uid|yes||Google tracking code generated from Google.|
 |debug|no|false|True will enabled GA-lib’s visual debugging mode.|
 
-h2(#shell). &lt;shell&gt;
+h1(#shell). &lt;shell&gt;
 
 Shell parameters.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |dispatchContextStartupComplete|no|true|At default HandBones will automatically dispatch <code>ContextEvent.STARTUP_COMPLETE</code> after the site.xml has been loaded and parsed. If you need to do some custom injections based on the settingsModel, you need to switch this too false and created your own command. This command should handle your injections and dispatch <code>ContextEvent.STARTUP_COMPLETE</code>.|
 
-h2(#data). &lt;data&gt;
+h1(#data). &lt;data&gt;
 
 This node can contain any data you like. This node will be available on the settingsModel.
 
-h2(#asset). &lt;asset&gt;
+h1(#asset). &lt;asset&gt;
 
 The asset node defines an asset to be loaded via the AssetLoader library. The assets defined in the root of the site site node will be directly added to the loading queue AFTER all the pages have been added. These will then sequentially load in the background. It might be a good idea looking at "AssetLoader":http://github.com/Matan/AssetLoader as well.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |id|yes||The id of the asset for your reference.|
@@ -72,15 +72,15 @@ h3. Attributes:
 |onDemand|no|false|If true you must invoke the loading of this asset manually, thus this asset does not form part of the queue.|
 |preventCache|no|false|If true a AssetLoader adds unique query variable to the request, thus preventing the browser from storing the result in the local cache.|
 
-h2(#action). &lt;action&gt;
+h1(#action). &lt;action&gt;
 
 Actions are invoked by events and coupled to you code by a reference id. At this point actions mainly focus on navigation, but they can listen to shell events and perform anything.
 
-h3. Can Contain:
+h2. Can Contain:
 
 * &lt;track&gt; - Once the action is triggered it will trigger the tracking nodes defined within. Actions can contain any amount of track nodes. They will be executed in order of definition.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |event|no|click|Defines the event type on which the action is triggered.|
@@ -91,7 +91,7 @@ h3. Attributes:
 |invokeUrl|no||This will invoke the url defined.|
 |urlWindow|no|_blank|Tells the browser how to open the url.|
 
-h2(#track). &lt;track&gt;
+h1(#track). &lt;track&gt;
 
 Invokes Google Analytics. Track nodes can inherit values from their containing action nodes. You can specify variables within the attributes by surrounding the variable name with curly brackets.
 
@@ -103,7 +103,7 @@ Invokes Google Analytics. Track nodes can inherit values from their containing a
 </code>
 </pre>
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |url|no||Performs a “trackPageview” of the url specified.|
@@ -112,17 +112,17 @@ h3. Attributes:
 |label|no||Label of the tracking event.|
 |value|no|0|Numeric tracking value.|
 
-h2(#page). &lt;page&gt;
+h1(#page). &lt;page&gt;
 
 This node defines pages within your site.
 
-h3. Can Contain:
+h2. Can Contain:
 
 * &lt;data&gt; - Supplied to page via IPageModel.
 * &lt;asset&gt; - Asset to be loaded in this page's scope. These assets will form part of this page's IGroupLoader instance.
 * &lt;action&gt; - Define actions within the scope of this page.
 
-h3. Attributes:
+h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |id|yes||Unique string that defines this page.|
