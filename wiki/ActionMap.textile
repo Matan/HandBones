@@ -1,0 +1,152 @@
+The "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as is a key player in HandBones, it allows to map actions defined in you site.xml to the shell dispatcher or any other IEventDispatcher (e.g. a "go to home" button in your header). Primarily the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as will be used in a Mediator, but the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as needs "scope", by this I mean "what actions it should be referencing". Thus we have 3 implementations (not actual, but different uses) of the "IActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/IActionMap.as.
+
+Make sure that you've gone through the "Action node section":http://wiki.github.com/Matan/HandBones/site-xml-layout#action on the wiki before continuing.
+
+h1. Table of Contents
+
+# "How Actions work":#how
+# "Injecting the IActionMap":#iactionmap
+# "Extending the RootActionMediator":#rootactionmediator
+# "Extending the PageActionMediator":#pageactionmediator
+# "Examples":#examples
+** "Mapping a root Action":#exampleroot
+** "Mapping a page Action":#examplepage
+
+h1(#how). How Actions work
+
+"Actions":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as are defined in your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file, they are little segments of information you don't want to hard code into flash. "Actions":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as are mapped to an IEventDispatcher via the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as, the only coupling point is a String reference id you give to the "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as node. I would recommend creating a class that keeps your action references together as constants. So create a class called ActionRef and continuously add public constants to it as you need them. Naturally their string values must match the string you gave the action in your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout. They ARE case sensitive. When you don't define a reference, the action is automatically mapped to the shell dispatcher. Just be warned that these will be coupled to Flash's "magic string" event system, no concrete event type checking will occur.
+
+"Actions":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as can listen to any event, the default is "click" (<code>MouseEvent.CLICK</code>). As this is most likely the event type you'll be mapping to. Once this event fire from the IEventDispatcher the "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as node is analysed and it's corresponding "actions" are performed (e.g. open a url, navigate to a page, etc).
+
+"Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as nodes can contain multiple tracking nodes, which are carried out once the "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as is invoked. These tracking nodes are performed in order of appearance. Please note that "page views" are tracked automatically.
+
+h1(#iactionmap). Injecting the "IActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/core/IActionMap.as
+
+This is the primary "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as that is referring to the actions you defined directly within the site node node of your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file.
+
+You can inject this any where at any time, but keep in mind if this is occurring in a view component that is continuously added and removed from stage, you need unmap the mappings made by this view component. Otherwise you mapping will stack.
+
+h1(#rootactionmediator). Extending the "RootActionMediator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/mvcs/RootActionMediator.as
+
+This is a localised version of the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as, it keeps track of what mappings have been made in order to automatically unmap them as soon as the view component is removed from stage.
+
+The scope passed to this "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as is referring to the actions you defined directly within the site node node of your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file.
+
+h1(#pageactionmediator). Extending the "PageActionMediator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/mvcs/PageActionMediator.as
+
+Same as the "RootActionMediator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/mvcs/RootActionMediator.as, but the scope passed to this "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as is referring to the actions you defined within the current page's node of your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout.
+
+h1(#examples). Examples
+
+Here are some uses for the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as.
+
+Let's take the below as our "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout. Please see the [[Getting Started]] wiki page.
+
+<pre>
+<code>
+<site>
+
+	<!-- SETTINGS -->
+	<title prefix="" body="Home" suffix=" | Donkey.com" />
+	
+	<!-- ACTIONS -->
+	<action ref="GOTO_GALLERY_PAGE" gotoPageId="GALLERY_PAGE" />
+	
+	<!-- PAGES -->
+	<page id="CONTACT_US_PAGE" title="Contact Us" address="ContactUs" src="pages/ContactUsPage.swf" >
+	</page>
+	
+	<page id="GALLERY_PAGE" title="Gallery" address="Gallery" src="pages/GalleryPage.swf" >
+		<action ref="FLICKR" invokeUrl="http://www.flickr.com/" />
+	</page>
+	
+</site>
+</code>
+</pre>
+
+h2(#exampleroot). Mapping a root "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as
+
+Here is the top section of the site that has some buttons for navigation. The one button is called galleryBtn.
+
+<pre>
+<code>
+package com.donkey.view
+{
+	import org.robotlegs.mvcs.Mediator;
+	
+	import flash.events.MouseEvent;
+
+	public class HeaderMediator extends Mediator 
+	{
+
+		[Inject]
+		public var view : Header;
+		
+		[Inject]
+		public var actionMap : IActionMap;		
+
+		override public function onRegister() : void 
+		{
+			actionMap.mapAction(view.galleryBtn, "GOTO_GALLERY_PAGE", MouseEvent);
+		}
+		
+		override public function onRemove() : void 
+		{
+			actionMap.unmapAction(view.galleryBtn, "GOTO_GALLERY_PAGE", MouseEvent);
+		}
+	}
+}
+</code>
+</pre>
+
+Alternatively you could just extend "RootActionMediator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/mvcs/RootActionMediator.as, this creates a localised version of the "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as which unmaps all mappings automatically when removed.
+
+<pre>
+<code>
+package com.donkey.view
+{
+	import org.handbones.mvcs.RootActionMediator;
+	
+	import flash.events.MouseEvent;
+
+	public class HeaderMediator extends RootActionMediator 
+	{
+
+		[Inject]
+		public var view : Header;
+
+		override public function onRegister() : void 
+		{
+			actionMap.mapAction(view.galleryBtn, "GOTO_GALLERY_PAGE", MouseEvent);
+		}
+	}
+}
+</code>
+</pre>
+
+h2(#examplepage). Mapping a page "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as
+
+Here are are mapping the flickr button to an "Action":http://github.com/Matan/HandBones/blob/master/src/org/handbones/model/vo/ActionVO.as node defined in the gallery page's scope.
+
+<pre>
+<code>
+package com.donkey.pages.galley.view
+{
+	import org.handbones.mvcs.PageActionMediator;
+	
+	import flash.events.MouseEvent;
+
+	public class GalleryMediator extends PageActionMediator 
+	{
+
+		[Inject]
+		public var view : Gallery;
+
+		override public function onRegister() : void 
+		{
+			actionMap.mapAction(view.flickrBtn, "FLICKR", MouseEvent);
+		}
+	}
+}
+</code>
+</pre>
