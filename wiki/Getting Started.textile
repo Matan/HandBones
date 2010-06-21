@@ -1,4 +1,4 @@
-You have to understand "Robotlegs":http://www.robotlegs.org and the "MVCS":http://wiki.github.com/robotlegs/robotlegs-framework/best-practices#mvcs design pattern before continuing, these are core to HandBones. You'll also need an IDE that can compile swfs from any AS file in your source folder, like "FDT":http://www.fdt.powerflasher.com.
+You have to understand "Robotlegs":http://www.robotlegs.org and the "MVCS":http://wiki.github.com/robotlegs/robotlegs-framework/best-practices#mvcs design pattern before continuing, these are core to HandBones. You'll also need an IDE that can compile swfs from any AS file in your source folder, like "FDT":http://www.fdt.powerflasher.com, alternatively you can use the "HandBones-ANT-Tool":http://github.com/Matan/HandBones-ANT-Tool to compile your project.
 
 h1. Table of Contents
 
