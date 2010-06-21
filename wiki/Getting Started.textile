@@ -36,13 +36,13 @@ For this example, lets say you are making a website www.donkey.com and it has tw
 
 Setup a debug/run config for Main.as (Note: you don't have to call it Main.as) to compile to your bin folder. Also create debug/run configs for your pages, but let them compile to a sub folder of bin (e.g. pages, this just makes things clearer).
 
-Each page will now start it's own tier of MVCS, forming is own little application. We'll get to this later.
+Each page will now start it's own tier of MVCS, forming its own little application. We'll get to this later.
 
 h1(#sitexml). Site XML
 
 At this point you can setup your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file. Please refer to [[Site XML Layout]] wiki page.
 
-Create the file in you bin folder under data. Please note, you don't have to call the xml file "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout, you define where the file is located and what it is called.
+Create the file in your bin folder under data. Please note, you don't have to call the xml file "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout, you define where the file is located and what it is called.
 
 * bin
 ** data
@@ -136,7 +136,7 @@ After the "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout has 
 
 In your view package create the following: RootCanvas extending Sprite; RootCanvasMediator extending Mediator
 
-Map a command that adds your primary view the <code>contextView</code>. A good model to follow is created a RootCanvas view that contains your primary view components that make up the your site. (e.g. Header, Footer, etc)
+Map a command that adds your primary view to the <code>contextView</code>. A good model to follow is to created a RootCanvas view that contains your primary view components that make up the your site. (e.g. Header, Footer, etc)
 
 <pre>
 <code>
