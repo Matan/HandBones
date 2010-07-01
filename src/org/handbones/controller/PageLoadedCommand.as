@@ -1,7 +1,7 @@
 package org.handbones.controller 
 {
 	import org.assetloader.core.IAssetLoader;
-	import org.assetloader.events.AssetLoaderEvent;
+	import org.assetloader.events.SWFAssetEvent;
 	import org.handbones.base.HandBonesError;
 	import org.handbones.base.PageMediator;
 	import org.handbones.core.IPage;
@@ -15,11 +15,11 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class AssetLoadedCommand extends Command 
+	public class PageLoadedCommand extends Command 
 	{
 
 		[Inject]
-		public var event : AssetLoaderEvent;
+		public var event : SWFAssetEvent;
 
 		[Inject]
 		public var assetLoader : IAssetLoader;
@@ -45,7 +45,7 @@ package org.handbones.controller
 					
 					try
 					{
-						page = event.data;
+						page = IPage(event.sprite);
 					}catch(error : Error)
 					{
 						throw new HandBonesError(HandBonesError.NOT_IPAGE);
@@ -55,7 +55,10 @@ package org.handbones.controller
 					{
 						if(!page.model)
 						{
-							page.model = pageModel;
+							injector.mapValue(IPageModel, pageModel);
+							injector.injectInto(page);
+							injector.unmap(IPageModel);
+							
 							mediatorMap.mapView(getQualifiedClassName(page).replace("::", "."), PageMediator, IPage, pageModel.autoStartup, pageModel.autoShutdown);
 							
 							dispatch(new PageEvent(PageEvent.LOADED, pageModel));						}

@@ -3,6 +3,8 @@ package org.handbones.base.page
 	import org.handbones.core.page.IPageInjector;
 	import org.robotlegs.core.IInjector;
 
+	import flash.system.ApplicationDomain;
+
 	/**
 	 * @author Matan Uberstein
 	 */
@@ -11,7 +13,7 @@ package org.handbones.base.page
 
 		[Inject]
 		public var injector : IInjector;
-		
+
 		protected var _mappings : Array;
 
 		public function PageInjector() 
@@ -79,6 +81,26 @@ package org.handbones.base.page
 			{
 				injector.unmap(mapping.clazz, mapping.named);
 			}
+		}
+
+		public function createChild(applicationDomain : ApplicationDomain = null) : IInjector
+		{
+			return injector.createChild(applicationDomain);
+		}
+
+		public function getInstance(clazz : Class, named : String = "") : *
+		{
+			return injector.getInstance(clazz, named);
+		}
+
+		public function hasMapping(clazz : Class, named : String = "") : Boolean
+		{
+			for each (var mapping : Object in _mappings) 
+			{
+				if(mapping.clazz == clazz && mapping.named == named)
+					return true;
+			}
+			return false;
 		}
 
 		protected function saveMapping(whenAskedFor : Class, named : String = "") : void

@@ -7,9 +7,5 @@ package org.handbones.core.page
 	 */
 	public interface IPageCommandMap extends ICommandMap 
 	{
-		/**
-		 * Unmaps all command mappings made on this instance.
-		 */
-		function unmapEvents() : void
 	}
 }

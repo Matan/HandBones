@@ -6,7 +6,7 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class PostStartupCompleteCommand extends Command 
+	public class UpdateSizeModelCommand extends Command 
 	{
 
 		[Inject]

@@ -1,5 +1,6 @@
 package org.handbones.services 
 {
+	import org.handbones.model.ContextMenuModel;
 	import org.assetloader.base.AssetType;
 	import org.assetloader.base.Param;
 	import org.assetloader.core.IAssetLoader;
@@ -10,6 +11,8 @@ package org.handbones.services
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
 	import org.handbones.model.vo.AssetVO;
+	import org.handbones.model.vo.ContextMenuItemVO;
+	import org.handbones.model.vo.ContextMenuVO;
 	import org.handbones.model.vo.TrackVO;
 	import org.robotlegs.mvcs.Actor;
 
@@ -26,6 +29,9 @@ package org.handbones.services
 
 		[Inject]
 		public var model : SettingsModel;
+
+		[Inject]
+		public var contextMenuModel : ContextMenuModel;
 
 		[Inject]
 		public var assetLoader : IAssetLoader;
@@ -116,6 +122,9 @@ package org.handbones.services
 				
 				switch(String(node.name())) 
 				{
+					case "contextMenu":
+						contextMenuModel.contextMenuVo = parseContextMenuNode(node);
+						break;
 					case "page" :
 						pages.push(parsePageNode(node));
 						break;
@@ -142,6 +151,72 @@ package org.handbones.services
 			model.assets = assets;
 			
 			model.data = xml.data[0];
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------//
+		protected function parseContextMenuNode(xml : XML) : ContextMenuVO 
+		{
+			var items : Array = [];
+			var children : XMLList = xml.children();
+			
+			var cL : int = children.length();
+			for(var i : int = 0;i < cL;i++) 
+			{
+				var node : XML = children[i];
+				
+				switch(String(node.name())) 
+				{
+					case "item" :
+						items.push(parseContextMenuItemNode(node));
+						break;
+				}
+			}
+			
+			var vo : ContextMenuVO = new ContextMenuVO();
+			
+			vo.hideDefault = (xml.@hideDefault == "true") ? true : false;
+			
+			if(xml.@zoom != null)
+				vo.zoom = (xml.@zoom == "false") ? false : true;
+				
+			if(xml.@quality != null)
+				vo.quality = (xml.@quality == "false") ? false : true;
+				
+			if(xml.@print != null)
+				vo.print = (xml.@print == "false") ? false : true;
+				
+			vo.items = items;
+			
+			return vo;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------//
+		protected function parseContextMenuItemNode(xml : XML) : ContextMenuItemVO 
+		{
+			var actions : Array = [];
+			var children : XMLList = xml.children();
+			
+			var cL : int = children.length();
+			for(var i : int = 0;i < cL;i++) 
+			{
+				var node : XML = children[i];
+				
+				switch(String(node.name())) 
+				{
+					case "action" :
+						actions.push(parseActionNode(node));
+						break;
+				}
+			}
+			
+			var vo : ContextMenuItemVO = new ContextMenuItemVO();
+			
+			vo.caption = xml.@caption;
+			
+			vo.separator = (xml.@separator == "true") ? true : false;			vo.enabled = (xml.@enabled == "false") ? false : true;			vo.visible = (xml.@visible == "false") ? false : true;			
+			vo.actions = actions;
+			
+			return vo;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//

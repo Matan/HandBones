@@ -11,7 +11,7 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class PageChangeCommand extends Command 
+	public class PageChangeCommand extends Command 
 	{
 
 		[Inject]

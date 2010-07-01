@@ -43,6 +43,21 @@ package org.handbones.base.page
 			commandMap.unmapEvent(eventType, commandClass, eventClass);
 		}
 
+		public function detain(command : Object) : void
+		{
+			commandMap.detain(command);
+		}
+
+		public function execute(commandClass : Class, payload : Object = null, payloadClass : Class = null, named : String = "") : void
+		{
+			commandMap.execute(commandClass, payload, payloadClass, named);
+		}
+
+		public function release(command : Object) : void
+		{
+			commandMap.release(command);
+		}
+
 		public function unmapEvents() : void
 		{
 			var mapping : Object;

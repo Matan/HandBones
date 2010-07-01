@@ -30,7 +30,7 @@ package org.handbones.core
 		 * @param eventClass Optional <code>Event</code> class for a stronger mapping. Defaults to <code>flash.events.Event</code>.
 		 * @param useCapture
 		 */
-		function unmapAction(dispatcher : IEventDispatcher, reference : String, eventClass : Class = null, useCapture : Boolean = false) : void 
+		function unmapAction(eventDispatcher : IEventDispatcher, reference : String, eventClass : Class = null, useCapture : Boolean = false) : void 
 
 		/**
 		 * Unmaps all actions.

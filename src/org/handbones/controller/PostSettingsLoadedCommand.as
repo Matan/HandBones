@@ -1,13 +1,19 @@
 package org.handbones.controller 
 {
+	import org.handbones.model.ContextMenuModel;
 	import org.assetloader.base.AssetType;
 	import org.assetloader.base.Param;
 	import org.assetloader.core.IAssetLoader;
 	import org.assetloader.core.IGroupLoader;
+	import org.assetloader.events.SWFAssetEvent;
+	import org.handbones.base.HandBonesError;
+	import org.handbones.base.Navigator;
 	import org.handbones.base.page.PageCommandMap;
 	import org.handbones.base.page.PageInjector;
 	import org.handbones.base.page.PageMediatorMap;
 	import org.handbones.base.page.PageViewMap;
+	import org.handbones.core.IActionMap;
+	import org.handbones.core.INavigator;
 	import org.handbones.model.PageModel;
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
@@ -16,19 +22,27 @@ package org.handbones.controller
 	import org.robotlegs.base.ContextEvent;
 	import org.robotlegs.mvcs.Command;
 
+	import flash.system.ApplicationDomain;
+	import flash.system.LoaderContext;
 	import flash.utils.describeType;
 
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class ParseSettingsCommand extends Command 
+	public class PostSettingsLoadedCommand extends Command 
 	{
 
 		[Inject]
 		public var settingsModel : SettingsModel;
+		
+		[Inject]
+		public var contextMenuModel : ContextMenuModel;
 
 		[Inject]
 		public var assetLoader : IAssetLoader;
+
+		[Inject]
+		public var actionMap : IActionMap;
 
 		protected var _trackActionPropertyNames : Array;
 
@@ -36,16 +50,34 @@ package org.handbones.controller
 		{
 			parseForTrackingVars();
 			parseForAssets();
-			injectPageModelValues();
+			populatePageModels();
 			
 			if(settingsModel.shellDispatchContextStartupComplete)
 				dispatch(new ContextEvent(ContextEvent.STARTUP_COMPLETE));
+				
+			//Instantiate Navigator now to ensure that it only fires event after settings are ready.
+			injector.mapValue(INavigator, injector.instantiate(Navigator));
+			
+			//Ensure that sizing model is populated before any reference to it occures
+			commandMap.execute(UpdateSizeModelCommand);
+			
+			//Have to do mapping here to make this command execute AFTER views have been created and added to state.
+			commandMap.mapEvent(ContextEvent.STARTUP_COMPLETE, UpdateSizeModelCommand, ContextEvent, true);
+			
+			//Command will error before settingsModel is populated.
+			commandMap.mapEvent(SWFAssetEvent.LOADED, PageLoadedCommand, SWFAssetEvent);
+			
+			//This will map all actions that don't have a reference to the shell dispatcher.
+			actionMap.mapAction(eventDispatcher, "");
+			
+			//This will start loading the page swf's then all the assets.
+			assetLoader.start();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//
 		// PAGE MODELS
 		//--------------------------------------------------------------------------------------------------------------------------------//
-		protected function injectPageModelValues() : void
+		protected function populatePageModels() : void
 		{
 			var pL : int = settingsModel.pages.length;
 			for(var i : int = 0;i < pL;i++) 
@@ -71,10 +103,10 @@ package org.handbones.controller
 					params.push(new Param(Param.PRIORITY, pageModel.loadPriority));
 				
 				params.push(new Param(Param.ON_DEMAND, pageModel.loadOnDemand));
+				params.push(new Param(Param.LOADER_CONTEXT, new LoaderContext(false, ApplicationDomain.currentDomain)));
 				
 				assetLoader.addLazy(pageModel.id, pageModel.src, AssetType.SWF, params);
-				
-				if(!pageModel.assetGroupId)
+								if(!pageModel.assetGroupId)
 					pageModel.assetGroupId = pageModel.id + "-ASSET_GROUP";
 						
 				addAssetsToLoader(pageModel.assets, assetLoader.addGroup(pageModel.assetGroupId));
@@ -115,6 +147,8 @@ package org.handbones.controller
 			{
 				parseActionsForTrackingVars(settingsModel.pages[i].actions);
 			}
+			
+			parseActionsForTrackingVars(contextMenuModel.actions);
 		}
 
 		protected function parseActionsForTrackingVars(actions : Array) : void
@@ -155,7 +189,7 @@ package org.handbones.controller
 					}
 				}catch(error : Error)
 				{
-					throw new Error("Variable (" + varName + ") defined in Settings could not be assigned to TrackAction property (" + property + ")");
+					throw new HandBonesError(HandBonesError.TRACK_VAR_NOT_ASSIGNED(varName, property));
 				}
 			}
 		}

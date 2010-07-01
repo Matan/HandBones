@@ -1,6 +1,26 @@
 package org.handbones.mvcs 
 {
-	import org.handbones.controller.InitHandBonesCommand;
+	import org.assetloader.AssetLoader;
+	import org.assetloader.core.IAssetLoader;
+	import org.handbones.base.ActionMap;
+	import org.handbones.base.GoogleTracker;
+	import org.handbones.controller.ExecuteActionCommand;
+	import org.handbones.controller.PageChangeCommand;
+	import org.handbones.controller.PageShutdownCompleteCommand;
+	import org.handbones.controller.PageStartupCommand;
+	import org.handbones.controller.PostSettingsLoadedCommand;
+	import org.handbones.core.IActionMap;
+	import org.handbones.core.ISettingsService;
+	import org.handbones.core.ITracker;
+	import org.handbones.events.ActionMapEvent;
+	import org.handbones.events.NavigatorEvent;
+	import org.handbones.events.PageEvent;
+	import org.handbones.events.SettingsEvent;
+	import org.handbones.model.ContextMenuModel;
+	import org.handbones.model.NavigatorModel;
+	import org.handbones.model.SettingsModel;
+	import org.handbones.model.SizeModel;
+	import org.handbones.services.XmlSettingsService;
 	import org.robotlegs.base.ContextEvent;
 	import org.robotlegs.mvcs.Context;
 
@@ -11,16 +31,37 @@ package org.handbones.mvcs
 	 */
 	public class HandBonesContext extends Context 
 	{
-		public function HandBonesContext(contextView : DisplayObjectContainer = null)
+		public function HandBonesContext(contextView : DisplayObjectContainer)
 		{
-			super(contextView, false);
-			preStartup();
-			startup();
+			super(contextView, true);
+			mapCommands();
+		}
+		
+		protected function mapCommands() : void
+		{
+			commandMap.mapEvent(SettingsEvent.LOADED, PostSettingsLoadedCommand, SettingsEvent, true);
+			
+			commandMap.mapEvent(ActionMapEvent.EXECUTE_ACTION, ExecuteActionCommand, ActionMapEvent);
+			commandMap.mapEvent(NavigatorEvent.PAGE_CHANGE, PageChangeCommand, NavigatorEvent);
+			
+			commandMap.mapEvent(PageEvent.STARTUP, PageStartupCommand, PageEvent);
+			commandMap.mapEvent(PageEvent.SHUTDOWN_COMPLETE, PageShutdownCompleteCommand, PageEvent);
 		}
 
-		protected function preStartup() : void
+		override protected function mapInjections() : void 
 		{
-			commandMap.mapEvent(ContextEvent.STARTUP, InitHandBonesCommand, ContextEvent, true);
+			injector.mapSingletonOf(IActionMap, ActionMap);
+			injector.mapSingletonOf(ITracker, GoogleTracker);
+			
+			injector.mapSingleton(SettingsModel);
+			injector.mapSingleton(NavigatorModel);
+			injector.mapSingleton(SizeModel);
+			injector.mapSingleton(ContextMenuModel);
+			
+			injector.mapSingletonOf(IAssetLoader, AssetLoader);
+			injector.mapSingletonOf(ISettingsService, XmlSettingsService);
+			
+			super.mapInjections();
 		}
 
 		/**

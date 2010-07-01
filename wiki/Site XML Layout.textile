@@ -6,6 +6,8 @@ h1. Table of Contents
 # "Title node":#title
 # "Tracker node":#tracker
 # "Shell node":#shell
+# "ContextMenu node":#contextmenu
+** "Item node":#contextmenuitem
 # "Data node":#data
 # "Asset node":#asset
 # "Action node":#action
@@ -52,6 +54,38 @@ h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |dispatchContextStartupComplete|no|true|At default HandBones will automatically dispatch <code>ContextEvent.STARTUP_COMPLETE</code> after the site.xml has been loaded and parsed. If you need to do some custom injections based on the settingsModel, you need to switch this too false and created your own command. This command should handle your injections and dispatch <code>ContextEvent.STARTUP_COMPLETE</code>.|
+
+h1(#contextmenu). &lt;contextMenu&gt;
+
+Defines the context menu (right-click-menu) within your website. This node only contains item nodes.
+
+h2. Can Contain:
+
+* &lt;item&gt; - Items will be shown in order of appearance.
+
+h2. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|hideDefault|no|true|Hides all the default items|
+|zoom|no|false|Whether to show the zoom context menu items or not.|
+|quality|no|false|Whether to show the quality context menu items or not.|
+|print|no|false|Whether to show the print context menu item or not.|
+
+h1(#contextmenuitem). &lt;item&gt;
+
+Defines the actual item to be added to the context menu.
+
+h2. Can Contain:
+
+* &lt;action&gt; - Actions that will be sequentially executed when the context menu item is clicked. Please note that you do not have to define the action's "ref" attribute as it is automatically linked to it's containing item.
+
+h2. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|caption|yes||Text that will be displayed.|
+|separator|no|false|Setting true will place a separator above this item.|
+|enabled|no|true|Whether this item is clickable or not.|
+|visible|no|true|Whether item is visible or not.|
 
 h1(#data). &lt;data&gt;
 
@@ -143,10 +177,31 @@ h1(#sample). Sample site.xml
 	<!-- SETTINGS -->
 	<title prefix="" body="Root Page" suffix=" | HandBones" />
 	<tracker uid="UA-XXXXXXXX-X" debug="false" />
-	<shell dispatchContextStartupComplete="true" />
+	<!-- <shell dispatchContextStartupComplete="true" /> -->
+	
+	<contextMenu hideDefault="true" zoom="false" quality="false" print="false" >
+		
+		<item caption="Hello World Page" separator="false" enabled="true" visible="true" >
+			<action gotoPageId="HELLO_WORLD_PAGE" >
+				<track category="LinkUsage" action="ContextMenu" label="{gotoPageId}" />
+			</action>
+		</item>
+		<item caption="Gallery Page" separator="false" enabled="true" visible="true" >
+			<action gotoPageId="GALLERY_PAGE" >
+				<track category="LinkUsage" action="ContextMenu" label="{gotoPageId}" />
+			</action>
+		</item>
+		
+		<item caption="HandBones on Github" separator="true" >
+			<action invokeUrl="http://github.com/Matan/HandBones" urlWindow="_blank" >
+				<track category="LinkUsage" action="ContextMenu" label="{invokeUrl}" />
+			</action>
+		</item>
+		
+	</contextMenu>
 	
 	<data>
-		<handbones version="0.5.0" />
+		<handbones version="0.7.0" />
 	</data>
 	
 	<!-- ROOT ACTIONS -->
@@ -174,7 +229,7 @@ h1(#sample). Sample site.xml
 	<action ref="FOOTER_BLOG" invokeUrl="http://www.matanuberstein.co.za" window="_blank">
 		<track category="LinkUsage" action="{ref}" label="{invokeUrl}" />
 	</action>
-	<action ref="FOOTER_ASDOC" invokeUrl="asdocs/index.html" window="_blank">
+	<action ref="FOOTER_ASDOC" invokeUrl="../asdocs/index.html" window="_blank">
 		<track category="LinkUsage" action="{ref}" label="{invokeUrl}" />
 	</action>
 	<action ref="FOOTER_ROBOTLEGS" invokeUrl="http://www.robotlegs.org" window="_blank">

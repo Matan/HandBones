@@ -10,7 +10,7 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class ExecuteActionCommand extends Command 
+	public class ExecuteActionCommand extends Command 
 	{
 
 		[Inject]

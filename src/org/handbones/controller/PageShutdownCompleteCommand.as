@@ -12,7 +12,7 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class PageShutdownCompleteCommand extends Command 
+	public class PageShutdownCompleteCommand extends Command 
 	{
 		override public function execute() : void 
 		{

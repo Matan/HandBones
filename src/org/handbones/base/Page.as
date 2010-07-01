@@ -9,7 +9,6 @@ package org.handbones.base
 	import org.handbones.core.page.IPageViewMap;
 	import org.handbones.events.PageEvent;
 
-	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -24,14 +23,11 @@ package org.handbones.base
 		 */
 		protected var _eventDispatcher : IEventDispatcher;
 
+		/**
+		 * @private
+		 */
 		protected var _model : IPageModel;
 
-		/**
-		 * @inheritDoc
-		 */
-		public var contextView : DisplayObjectContainer;
-
-		
 		public function Page() 
 		{
 		}
@@ -98,9 +94,14 @@ package org.handbones.base
 			return _model;
 		}
 
-		public function set model(model : IPageModel) : void
+		[Inject]
+
+		/**
+		 * @private
+		 */
+		public function set model(value : IPageModel) : void
 		{
-			_model = model;
+			_model = value;
 		}
 
 		/**

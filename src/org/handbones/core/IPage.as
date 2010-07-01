@@ -54,8 +54,6 @@ package org.handbones.core
 
 		function get model() : IPageModel 
 
-		function set model(value : IPageModel) : void 
-
 		function get injector() : IPageInjector
 
 		function get mediatorMap() : IPageMediatorMap

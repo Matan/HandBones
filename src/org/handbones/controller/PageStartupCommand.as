@@ -15,7 +15,7 @@ package org.handbones.controller
 	/**
 	 * @author Matan Uberstein
 	 */
-	internal class PageStartupCommand extends Command 
+	public class PageStartupCommand extends Command 
 	{
 
 		[Inject]
