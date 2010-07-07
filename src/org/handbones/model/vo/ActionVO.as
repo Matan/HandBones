@@ -16,6 +16,8 @@ package org.handbones.model.vo
 		public var changeAddress : String;
 		public var keepHistory : Boolean;
 
+		public var showStatus : Boolean;
+
 		public var trackers : Array;
 
 		public function toString() : String 

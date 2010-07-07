@@ -2,14 +2,14 @@ package org.handbones.mvcs
 {
 	import org.assetloader.AssetLoader;
 	import org.assetloader.core.IAssetLoader;
-	import org.handbones.base.ActionMap;
 	import org.handbones.base.GoogleTracker;
 	import org.handbones.controller.ExecuteActionCommand;
 	import org.handbones.controller.PageChangeCommand;
 	import org.handbones.controller.PageShutdownCompleteCommand;
 	import org.handbones.controller.PageStartupCommand;
 	import org.handbones.controller.PostSettingsLoadedCommand;
-	import org.handbones.core.IActionMap;
+	import org.handbones.controller.RemoveStatusCommand;
+	import org.handbones.controller.SetStatusCommand;
 	import org.handbones.core.ISettingsService;
 	import org.handbones.core.ITracker;
 	import org.handbones.events.ActionMapEvent;
@@ -41,7 +41,8 @@ package org.handbones.mvcs
 		{
 			commandMap.mapEvent(SettingsEvent.LOADED, PostSettingsLoadedCommand, SettingsEvent, true);
 			
-			commandMap.mapEvent(ActionMapEvent.EXECUTE_ACTION, ExecuteActionCommand, ActionMapEvent);
+			commandMap.mapEvent(ActionMapEvent.EXECUTE, ExecuteActionCommand, ActionMapEvent);			commandMap.mapEvent(ActionMapEvent.SET_STATUS, SetStatusCommand, ActionMapEvent);			commandMap.mapEvent(ActionMapEvent.REMOVE_STATUS, RemoveStatusCommand, ActionMapEvent);
+			
 			commandMap.mapEvent(NavigatorEvent.PAGE_CHANGE, PageChangeCommand, NavigatorEvent);
 			
 			commandMap.mapEvent(PageEvent.STARTUP, PageStartupCommand, PageEvent);
@@ -50,14 +51,12 @@ package org.handbones.mvcs
 
 		override protected function mapInjections() : void 
 		{
-			injector.mapSingletonOf(IActionMap, ActionMap);
-			injector.mapSingletonOf(ITracker, GoogleTracker);
-			
-			injector.mapSingleton(SettingsModel);
-			injector.mapSingleton(NavigatorModel);
-			injector.mapSingleton(SizeModel);
 			injector.mapSingleton(ContextMenuModel);
+			injector.mapSingleton(NavigatorModel);
+			injector.mapSingleton(SettingsModel);
+			injector.mapSingleton(SizeModel);
 			
+			injector.mapSingletonOf(ITracker, GoogleTracker);
 			injector.mapSingletonOf(IAssetLoader, AssetLoader);
 			injector.mapSingletonOf(ISettingsService, XmlSettingsService);
 			

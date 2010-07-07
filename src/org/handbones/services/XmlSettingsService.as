@@ -276,6 +276,8 @@ package org.handbones.services
 			action.changeAddress = xml.@changeAddress;			
 			action.urlWindow = xml.@urlWindow;						if(xml.@keepHistory != null)
 				action.keepHistory = (xml.@keepHistory == "false") ? false : true;
+				
+			action.showStatus = (xml.@showStatus == "false") ? false : true;
 			
 			var trackActions : Array = [];
 			var children : XMLList = xml.children();

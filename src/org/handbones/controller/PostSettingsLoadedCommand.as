@@ -1,11 +1,12 @@
 package org.handbones.controller 
 {
-	import org.handbones.model.ContextMenuModel;
+	import org.handbones.model.SizeModel;
 	import org.assetloader.base.AssetType;
 	import org.assetloader.base.Param;
 	import org.assetloader.core.IAssetLoader;
 	import org.assetloader.core.IGroupLoader;
 	import org.assetloader.events.SWFAssetEvent;
+	import org.handbones.base.ActionMap;
 	import org.handbones.base.HandBonesError;
 	import org.handbones.base.Navigator;
 	import org.handbones.base.page.PageCommandMap;
@@ -14,6 +15,7 @@ package org.handbones.controller
 	import org.handbones.base.page.PageViewMap;
 	import org.handbones.core.IActionMap;
 	import org.handbones.core.INavigator;
+	import org.handbones.model.ContextMenuModel;
 	import org.handbones.model.PageModel;
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
@@ -34,15 +36,15 @@ package org.handbones.controller
 
 		[Inject]
 		public var settingsModel : SettingsModel;
-		
+
 		[Inject]
 		public var contextMenuModel : ContextMenuModel;
 
 		[Inject]
-		public var assetLoader : IAssetLoader;
+		public var sizeModel : SizeModel;
 
 		[Inject]
-		public var actionMap : IActionMap;
+		public var assetLoader : IAssetLoader;
 
 		protected var _trackActionPropertyNames : Array;
 
@@ -55,19 +57,26 @@ package org.handbones.controller
 			//Instantiate Navigator now to ensure that it only fires event after settings are ready.
 			injector.mapValue(INavigator, injector.instantiate(Navigator));
 			
-			//Command will error before settingsModel is populated.
-			commandMap.mapEvent(SWFAssetEvent.LOADED, PageLoadedCommand, SWFAssetEvent);
+			//Construct and map ActionMap 
+			var actionMap : IActionMap = new ActionMap(eventDispatcher, settingsModel.actions); 
+			injector.mapValue(IActionMap, actionMap);
 			
 			//This will map all actions that don't have a reference to the shell dispatcher.
 			actionMap.mapAction(eventDispatcher, "");
 			
+			//Command will error before settingsModel is populated.
+			commandMap.mapEvent(SWFAssetEvent.LOADED, PageLoadedCommand, SWFAssetEvent);
+			
+			//Ensure that sizing model is populated before any reference to it occures
+			sizeModel.updateSize(contextView.stage.stageWidth, contextView.stage.stageHeight);
+			
 			if(settingsModel.shellDispatchContextStartupComplete)
 				dispatch(new ContextEvent(ContextEvent.STARTUP_COMPLETE));
 				
-			//Ensure that sizing model is populated before any reference to it occures
-			commandMap.execute(UpdateSizeModelCommand);
+			//Set size again to esure that views that have been added during STARTUP_COMPLETE receives update event.
+			sizeModel.updateSize(contextView.stage.stageWidth, contextView.stage.stageHeight);
 				
-			//This will start loading the page swf's then all the assets.
+			//This will start loading the page swf's then all the other assets.
 			assetLoader.start();
 		}
 

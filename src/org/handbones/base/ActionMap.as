@@ -2,11 +2,11 @@ package org.handbones.base
 {
 	import org.handbones.core.IActionMap;
 	import org.handbones.events.ActionMapEvent;
-	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
 
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	import flash.events.MouseEvent;
 
 	/**
 	 * @author Matan Uberstein
@@ -16,12 +16,16 @@ package org.handbones.base
 		protected var _eventDispatcher : IEventDispatcher;
 
 		protected var _actions : Array;
-		protected var _mappings : Array;
-		public function ActionMap(eventDispatcher : IEventDispatcher, actions : Array = null) 
+		protected var _mappings : Array;
+
+		protected var _rollOverType : String;		protected var _rollOutType : String;
+		public function ActionMap(eventDispatcher : IEventDispatcher, actions : Array) 
 		{
 			_actions = actions;
 			_eventDispatcher = eventDispatcher;
 			_mappings = [];
+			
+			_rollOverType = MouseEvent.ROLL_OVER;			_rollOutType = MouseEvent.ROLL_OUT;
 		}
 
 		public function mapAction(eventDispatcher : IEventDispatcher, reference : String, eventClass : Class = null, listener : Function = null, useCapture : Boolean = false, priority : int = 0, useWeakReference : Boolean = true) : void 
@@ -35,21 +39,42 @@ package org.handbones.base
 			{
 				var action : ActionVO = matchedActions[a];
 				
-				var callback : Function = function(event : Event):void
-				{
-					executeAction(event, action, listener);
-				};
-				
 				var mapping : Mapping = new Mapping();
+				
 				mapping.eventDispatcher = eventDispatcher;
 				mapping.eventClass = eventClass;
-				mapping.callback = callback;
 				mapping.useCapture = useCapture;
-				mapping.action = action;				mapping.listener = listener;
-			
+				mapping.listener = listener;
+				mapping.action = action;
+				
+				mapping.callback = function(event : Event):void
+				{
+					if(listener != null)
+						listener(event);
+				
+					dispatch(new ActionMapEvent(ActionMapEvent.EXECUTE, action));
+				};
+				eventDispatcher.addEventListener(action.event, mapping.callback, useCapture, priority, useWeakReference);
+				
+				//Check if action should show status and if action is navigational.
+				if(action.showStatus && (action.gotoPageId || action.changeAddress || action.invokeUrl))
+				{
+					//Rollover callback
+					mapping.statusRolloverCallback = function(event : MouseEvent):void
+					{
+						dispatch(new ActionMapEvent(ActionMapEvent.SET_STATUS, action));
+					};
+					eventDispatcher.addEventListener(_rollOverType, mapping.statusRolloverCallback, useCapture, priority, useWeakReference);
+					
+					//Rollout callback
+					mapping.statusRolloutCallback = function(event : MouseEvent):void
+					{
+						dispatch(new ActionMapEvent(ActionMapEvent.REMOVE_STATUS, action));
+					};
+					eventDispatcher.addEventListener(_rollOutType, mapping.statusRolloutCallback, useCapture, priority, useWeakReference);
+				}
+				
 				_mappings.push(mapping);
-			
-				eventDispatcher.addEventListener(action.event, callback, useCapture, priority, useWeakReference);
 			}
 		}
 
@@ -69,9 +94,11 @@ package org.handbones.base
 				while (i--)
 				{
 					mapping = _mappings[i];
-					if (mapping.eventDispatcher == eventDispatcher && mapping.useCapture == useCapture && mapping.eventClass == eventClass && mapping.action == action)
+					
+					if(mapping.eventDispatcher == eventDispatcher && mapping.useCapture == useCapture && mapping.eventClass == eventClass && mapping.action == action)
 					{
-						eventDispatcher.removeEventListener(action.event, mapping.callback, useCapture);
+						removeMappingListeners(mapping);
+							
 						_mappings.splice(i, 1);
 						return;
 					}
@@ -84,17 +111,8 @@ package org.handbones.base
 			var mapping : Mapping;
 			while (mapping = _mappings.pop())
 			{
-				mapping.eventDispatcher.removeEventListener(mapping.action.event, mapping.callback, mapping.useCapture);
+				removeMappingListeners(mapping);
 			}
-		}
-
-		protected function executeAction(event : Event, action : ActionVO, listener : Function = null) : void 
-		{
-			//Call custom listener
-			if(listener != null)
-				listener(event);
-				
-			dispatch(new ActionMapEvent(ActionMapEvent.EXECUTE_ACTION, action));
 		}
 
 		protected function getActionsByRef(reference : String) : Array 
@@ -113,30 +131,25 @@ package org.handbones.base
 			return matched;
 		}
 
+		protected function removeMappingListeners(mapping : Mapping) : void
+		{
+			var eventDispatcher : IEventDispatcher = mapping.eventDispatcher;
+			var action : ActionVO = mapping.action;
+				
+			eventDispatcher.removeEventListener(action.event, mapping.callback, mapping.useCapture);
+				
+			if(mapping.statusRolloverCallback != null)
+				eventDispatcher.removeEventListener(_rollOverType, mapping.statusRolloverCallback, mapping.useCapture);
+							
+			if(mapping.statusRolloutCallback != null)
+				eventDispatcher.removeEventListener(_rollOutType, mapping.statusRolloutCallback, mapping.useCapture);
+		}
+
 		protected function dispatch(event : Event) : Boolean
 		{
-			if(eventDispatcher.hasEventListener(event.type))
- 		        return eventDispatcher.dispatchEvent(event);
+			if(_eventDispatcher.hasEventListener(event.type))
+ 		        return _eventDispatcher.dispatchEvent(event);
 			return false;
-		}
-
-		[Inject]
-
-		public function set settingsModel(value : SettingsModel) : void 
-		{
-			_actions = _actions || value.actions;
-		}
-
-		public function get eventDispatcher() : IEventDispatcher
-		{
-			return _eventDispatcher;
-		}
-
-		[Inject]
-
-		public function set eventDispatcher(value : IEventDispatcher) : void
-		{
-			_eventDispatcher = value;
 		}
 	}
 }
@@ -152,8 +165,9 @@ class Mapping
 {
 	public var eventDispatcher : IEventDispatcher;
 	public var eventClass : Class;
-	public var callback : Function;
+	public var callback : Function;	public var statusRolloverCallback : Function;	public var statusRolloutCallback : Function;
 	public var useCapture : Boolean;
 	public var action : ActionVO;
+
 	public var listener : Function;
 }
