@@ -27,11 +27,11 @@ For this example, lets say you are making a website www.donkey.com and it has tw
 **** controller
 **** model
 **** **pages**
-***** ContactUsPage.as - extends Page
-***** GalleryPage.as - extends Page
+***** ContactUsPage.as - extends **Page**
+***** GalleryPage.as - extends **Page**
 **** services
 **** view
-**** DonkeyContext.as - extends HandBonesContext
+**** DonkeyContext.as - extends **HandBonesContext**
 ** Main.as - extends Sprite
 
 Setup a debug/run config for Main.as (Note: you don't have to call it Main.as) to compile to your bin folder. Also create debug/run configs for your pages, but let them compile to a sub folder of bin (e.g. pages, this just makes things clearer).

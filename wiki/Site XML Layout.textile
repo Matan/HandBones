@@ -124,6 +124,7 @@ h2. Attributes:
 |keepHistory|no|true|Switching this to false will cause the browser not keep history of this action only, afterwards history is switched back on.|
 |invokeUrl|no||This will invoke the url defined.|
 |urlWindow|no|_blank|Tells the browser how to open the url.|
+|showStatus|no|true|If this action's purpose is to navigate this setting will apply. If true, rollover and rollout events will be added to the mapped EventDispatcher to change the browsers status. This allows the user to see where the site will navigate before the action is invoked. Please note that not all browsers support this, but it does work in IE.|
 
 h1(#track). &lt;track&gt;
 

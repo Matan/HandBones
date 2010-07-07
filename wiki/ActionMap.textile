@@ -24,7 +24,7 @@ h1(#iactionmap). Injecting the "IActionMap":http://github.com/Matan/HandBones/bl
 
 This is the primary "ActionMap":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/ActionMap.as that is referring to the actions you defined directly within the site node node of your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout file.
 
-You can inject this any where at any time, but keep in mind if this is occurring in a view component that is continuously added and removed from stage, you need unmap the mappings made by this view component. Otherwise you mapping will stack.
+You can inject this any where at any time, but keep in mind if this is occurring in a view component that is continuously added and removed from stage, you need unmap the mappings made by this view component. Otherwise your mappings will stack.
 
 h1(#rootactionmediator). Extending the "RootActionMediator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/mvcs/RootActionMediator.as
 
