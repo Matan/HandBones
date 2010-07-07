@@ -52,17 +52,8 @@ package org.handbones.controller
 			parseForAssets();
 			populatePageModels();
 			
-			if(settingsModel.shellDispatchContextStartupComplete)
-				dispatch(new ContextEvent(ContextEvent.STARTUP_COMPLETE));
-				
 			//Instantiate Navigator now to ensure that it only fires event after settings are ready.
 			injector.mapValue(INavigator, injector.instantiate(Navigator));
-			
-			//Ensure that sizing model is populated before any reference to it occures
-			commandMap.execute(UpdateSizeModelCommand);
-			
-			//Have to do mapping here to make this command execute AFTER views have been created and added to state.
-			commandMap.mapEvent(ContextEvent.STARTUP_COMPLETE, UpdateSizeModelCommand, ContextEvent, true);
 			
 			//Command will error before settingsModel is populated.
 			commandMap.mapEvent(SWFAssetEvent.LOADED, PageLoadedCommand, SWFAssetEvent);
@@ -70,6 +61,12 @@ package org.handbones.controller
 			//This will map all actions that don't have a reference to the shell dispatcher.
 			actionMap.mapAction(eventDispatcher, "");
 			
+			if(settingsModel.shellDispatchContextStartupComplete)
+				dispatch(new ContextEvent(ContextEvent.STARTUP_COMPLETE));
+				
+			//Ensure that sizing model is populated before any reference to it occures
+			commandMap.execute(UpdateSizeModelCommand);
+				
 			//This will start loading the page swf's then all the assets.
 			assetLoader.start();
 		}

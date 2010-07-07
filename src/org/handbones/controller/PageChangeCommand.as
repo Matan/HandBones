@@ -41,7 +41,7 @@ package org.handbones.controller
 				track = pageVo.address;
 			}
 			
-			navigator.setTitle(settingsModel.titlePrefix + title + settingsModel.titleSuffix);
+			navigator.title = settingsModel.titlePrefix + title + settingsModel.titleSuffix;
 			tracker.trackPageview(track);
 				
 			navModel.currentPage = event.page;

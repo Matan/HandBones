@@ -1,5 +1,7 @@
 package org.handbones.base 
 {
+	import org.handbones.model.NavigatorModel;
+
 	import com.asual.address.SWFAddress;
 	import com.asual.address.SWFAddressEvent;
 
@@ -27,8 +29,13 @@ package org.handbones.base
 		public var settingsModel : SettingsModel;
 
 		[Inject]
+		public var navigatorModel : NavigatorModel;
+
+		[Inject]
 		public var assetLoader : IAssetLoader;
-		
+
+		protected var _baseUrl : String;
+
 		[PostConstruct]
 
 		public function init() : void 
@@ -39,6 +46,9 @@ package org.handbones.base
 		//-----------------------------------------------------------------------------------------------------------//
 		// PUBLIC
 		//-----------------------------------------------------------------------------------------------------------//
+		/**
+		 * @inheritDoc
+		 */
 		public function gotoPageId(id : String) : void 
 		{
 			var pageModel : IPageModel = settingsModel.getPageModelById(id);
@@ -47,12 +57,25 @@ package org.handbones.base
 				setAddress(pageModel.address);
 		}
 
-		public function invokeURL(url : String, window : String = null) : void 
+		/**
+		 * @inheritDoc
+		 */
+		public function invokeURL(url : String, window : String = "_blank") : void 
 		{
-			window = window || "_blank";
 			navigateToURL(new URLRequest(url), window);
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function getAddress() : String
+		{
+			return SWFAddress.getValue();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function setAddress(address : String, history : Boolean = true) : void 
 		{
 			if(!history)
@@ -64,27 +87,50 @@ package org.handbones.base
 				SWFAddress.setHistory(true);
 		}
 
-		public function setTitle(title : String) : void 
+		/**
+		 * @inheritDoc
+		 */
+		public function get title() : String
 		{
-			if(title && title != "") 
-				SWFAddress.setTitle(title);
+			return SWFAddress.getTitle();
 		}
 
-		public function clearUrlVariables() : void
+		/**
+		 * @inheritDoc
+		 */
+		public function set title(value : String) : void 
 		{
-			SWFAddress.href(SWFAddress.getBaseURL() + "#" + getAddressNames().join("/"));
+			if(value && value != "") 
+				SWFAddress.setTitle(value);
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function getAddressNames() : Array 
 		{
 			return SWFAddress.getPathNames();
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public function getRootAddress() : String 
 		{
 			return getAddressNames()[0];
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function clearUrlVariables() : void
+		{
+			SWFAddress.href(SWFAddress.getBaseURL() + "#/" + getAddressNames().join("/"));
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function getUrlVariables() : URLVariables 
 		{
 			var qString : String = SWFAddress.getQueryString();
@@ -92,6 +138,110 @@ package org.handbones.base
 				return new URLVariables(qString);
 			
 			return new URLVariables();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function setUrlVariables(value : URLVariables) : void 
+		{
+			SWFAddress.href(SWFAddress.getBaseURL() + "#/" + getAddressNames().join("/") + "?" + value);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function getUrlVariable(param : String) : String
+		{
+			return SWFAddress.getParameter(param);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function getUrlVariableNames() : Array
+		{
+			return SWFAddress.getParameterNames();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function back() : void
+		{
+			SWFAddress.back();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function forward() : void
+		{
+			SWFAddress.forward();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function up() : void
+		{
+			SWFAddress.up();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get baseURL() : String
+		{
+			return SWFAddress.getBaseURL();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get history() : Boolean
+		{
+			return SWFAddress.getHistory();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function set history(history : Boolean) : void
+		{
+			SWFAddress.setHistory(history);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function popup(url : String, name : String = "popup", options : String = '""', handler : String = "") : void
+		{
+			SWFAddress.popup(url, name, options, handler);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function resetStatus() : void
+		{
+			SWFAddress.resetStatus();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get status() : String
+		{
+			return SWFAddress.getStatus();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function set status(status : String) : void
+		{
+			SWFAddress.setStatus(status);
 		}
 
 		//-----------------------------------------------------------------------------------------------------------//
@@ -152,7 +302,15 @@ package org.handbones.base
 		{
 			dispatchNavigatorEvent(NavigatorEvent.ADDRESS_CHANGE);
 			
-			navigateToPage(settingsModel.getPageModelByAddress(getRootAddress()));
+			var newPageModel : IPageModel = settingsModel.getPageModelByAddress(getRootAddress());
+			
+			if(newPageModel)
+			{
+				if(newPageModel.id != navigatorModel.currentPageId) 
+					navigateToPage(newPageModel);
+			}
+			else if(!newPageModel && navigatorModel.currentPage)
+				navigateToPage(newPageModel);
 		}
 	}
 }
