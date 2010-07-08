@@ -1,12 +1,12 @@
 package org.handbones.services 
 {
-	import org.handbones.model.ContextMenuModel;
 	import org.assetloader.base.AssetType;
 	import org.assetloader.base.Param;
 	import org.assetloader.core.IAssetLoader;
 	import org.assetloader.core.ILoader;
 	import org.handbones.core.ISettingsService;
 	import org.handbones.events.SettingsEvent;
+	import org.handbones.model.ContextMenuModel;
 	import org.handbones.model.PageModel;
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
@@ -47,8 +47,7 @@ package org.handbones.services
 		{
 			_loader = assetLoader.add(_assetId, request, AssetType.XML, new Param(Param.PREVENT_CACHE, true));
 			
-			_loader.addEventListener(Event.COMPLETE, loader_complete_handler);
-			_loader.addEventListener(IOErrorEvent.IO_ERROR, loader_ioError_handler);
+			eventMap.mapListener(_loader, Event.COMPLETE, loader_complete_handler, Event);			eventMap.mapListener(_loader, IOErrorEvent.IO_ERROR, loader_ioError_handler, Event);
 			
 			assetLoader.startAsset(_assetId);
 		}
@@ -58,11 +57,15 @@ package org.handbones.services
 		//--------------------------------------------------------------------------------------------------------------------------------//
 		protected function loader_ioError_handler(event : IOErrorEvent) : void 
 		{
+			eventMap.unmapListeners();
+			
 			handleError(event.text);
 		}
 
 		protected function loader_complete_handler(event : Event) : void 
 		{
+			eventMap.unmapListeners();
+			
 			try
 			{
 				var xml : XML = new XML(_loader.data);
@@ -74,7 +77,6 @@ package org.handbones.services
 			
 			parseSiteNode(xml);
 			
-			removeLoaderListeners();
 			assetLoader.remove(_assetId);
 			
 			dispatch(new SettingsEvent(SettingsEvent.LOADED));
@@ -85,8 +87,6 @@ package org.handbones.services
 		//--------------------------------------------------------------------------------------------------------------------------------//
 		protected function handleError(message : String) : void
 		{
-			removeLoaderListeners();
-			
 			var errorEvent : SettingsEvent = new SettingsEvent(SettingsEvent.ERROR);
 			errorEvent.errorMessage = message;
 				
@@ -94,14 +94,18 @@ package org.handbones.services
 				
 			dispatch(errorEvent);
 		}
-
-		protected function removeLoaderListeners() : void
+		
+		protected function toBoolean(value : String, defaultReturn : Boolean) : Boolean
 		{
-			if(_loader)
-			{
-				_loader.removeEventListener(Event.COMPLETE, loader_complete_handler);
-				_loader.removeEventListener(IOErrorEvent.IO_ERROR, loader_ioError_handler);
-			}
+			value = value.toLowerCase();
+			
+			if(value == "1" || value == "yes" || value == "true")
+				return true;
+				
+			if(value == "0" || value == "no" || value == "false")
+				return false;
+				
+			return defaultReturn;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//
@@ -142,10 +146,8 @@ package org.handbones.services
 			model.titleSuffix = xml.title.@suffix;
 			
 			model.trackerUID = xml.tracker.@uid;
-			model.trackerDebug = (xml.tracker.@debug == "true") ? true : false;
-			
-			model.shellDispatchContextStartupComplete = (xml.shell.@dispatchContextStartupComplete == "false") ? false : true;
-			
+			model.trackerDebug = toBoolean(xml.tracker.@debug, false);			
+			model.shellDispatchContextStartupComplete = toBoolean(xml.shell.@dispatchContextStartupComplete, true);			
 			model.pages = pages;
 			model.actions = actions;
 			model.assets = assets;
@@ -174,16 +176,8 @@ package org.handbones.services
 			
 			var vo : ContextMenuVO = new ContextMenuVO();
 			
-			vo.hideDefault = (xml.@hideDefault == "true") ? true : false;
-			
-			if(xml.@zoom != null)
-				vo.zoom = (xml.@zoom == "false") ? false : true;
-				
-			if(xml.@quality != null)
-				vo.quality = (xml.@quality == "false") ? false : true;
-				
-			if(xml.@print != null)
-				vo.print = (xml.@print == "false") ? false : true;
+			vo.hideDefault = toBoolean(xml.@hideDefault, true);
+			vo.zoom = toBoolean(xml.@zoom, false);			vo.quality = toBoolean(xml.@quality, false);			vo.print = toBoolean(xml.@print, false);
 				
 			vo.items = items;
 			
@@ -213,7 +207,7 @@ package org.handbones.services
 			
 			vo.caption = xml.@caption;
 			
-			vo.separator = (xml.@separator == "true") ? true : false;			vo.enabled = (xml.@enabled == "false") ? false : true;			vo.visible = (xml.@visible == "false") ? false : true;			
+			vo.separator = toBoolean(xml.@separator, false);			vo.enabled = toBoolean(xml.@enabled, true);			vo.visible = toBoolean(xml.@visible, true);			
 			vo.actions = actions;
 			
 			return vo;
@@ -250,16 +244,11 @@ package org.handbones.services
 			pageModel.assetGroupId = xml.@assetGroupId || null;
 			pageModel.loadPriority = (xml.@loadPriority || NaN);
 			
-			if(xml.@loadOnDemand != null)
-				pageModel.loadOnDemand = (xml.@loadOnDemand == "true") ? true : false;
+			pageModel.loadOnDemand = toBoolean(xml.@loadOnDemand, false);
 						pageModel.actions = actions;			pageModel.assets = assets;
 			pageModel.data = xml.data[0];
 			
-			if(xml.@autoCreate != null)
-				pageModel.autoStartup = (xml.@autoStartup == "false") ? false : true;
-			
-			if(xml.@autoRemove != null)
-				pageModel.autoShutdown = (xml.@autoShutdown == "false") ? false : true;
+			pageModel.autoStartup = toBoolean(xml.@autoStartup, true);			pageModel.autoShutdown = toBoolean(xml.@autoShutdown, true);
 			
 			return pageModel;
 		}
@@ -269,17 +258,7 @@ package org.handbones.services
 		{
 			var action : ActionVO = new ActionVO();
 			
-			action.ref = xml.@ref || "";
-						action.event = xml.@event || MouseEvent.CLICK;
-			
-			action.gotoPageId = xml.@gotoPageId;			action.invokeUrl = xml.@invokeUrl;
-			action.changeAddress = xml.@changeAddress;			
-			action.urlWindow = xml.@urlWindow;						if(xml.@keepHistory != null)
-				action.keepHistory = (xml.@keepHistory == "false") ? false : true;
-				
-			action.showStatus = (xml.@showStatus == "false") ? false : true;
-			
-			var trackActions : Array = [];
+			var trackers : Array = [];
 			var children : XMLList = xml.children();
 			
 			var cL : int = children.length();
@@ -290,11 +269,24 @@ package org.handbones.services
 				switch(String(node.name())) 
 				{
 					case "track" :
-						trackActions.push(parseTrackNode(node));
+						trackers.push(parseTrackNode(node));
 						break;
 				}
-			}			
-			action.trackers = trackActions;
+			}
+			
+			action.ref = xml.@ref || "";
+			
+			action.event = xml.@event || MouseEvent.CLICK;
+			
+			action.gotoPageId = xml.@gotoPageId;
+			action.invokeUrl = xml.@invokeUrl;
+			action.changeAddress = xml.@changeAddress;
+			
+			action.urlWindow = xml.@urlWindow;
+			action.keepHistory = toBoolean(xml.@keepHistory, true);
+			
+			action.showStatus = toBoolean(xml.@showStatus, true);			
+			action.trackers = trackers;
 			
 			return action;
 		}
@@ -315,12 +307,12 @@ package org.handbones.services
 			var asset : AssetVO = new AssetVO();
 			
 			asset.id = xml.@id;
-			asset.src = xml.@src;			asset.type = xml.@type || AssetType.AUTO;			asset.retries = xml.@retries || 3;			asset.weight = parseWeigtString(xml.@weight);			asset.priority = xml.@priority || NaN;			asset.onDemand = xml.@onDemand || false;			asset.preventCache = xml.@preventCache || false;			
+			asset.src = xml.@src;			asset.type = xml.@type || AssetType.AUTO;			asset.retries = xml.@retries || 3;			asset.weight = parseWeightString(xml.@weight);			asset.priority = xml.@priority || NaN;			asset.onDemand = toBoolean(xml.@onDemand, false);			asset.preventCache = toBoolean(xml.@preventCache, false);			
 			return asset;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//
-		protected function parseWeigtString(str : String) : uint
+		protected function parseWeightString(str : String) : uint
 		{
 			if(!str)
 				return 0;

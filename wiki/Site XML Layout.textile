@@ -2,6 +2,7 @@ The purpose of the document is to explain the roll of the site.xml file and each
 
 h1. Table of Contents
 
+# "Please Note":#pleasenote
 # "Site node":#site
 # "Title node":#title
 # "Tracker node":#tracker
@@ -15,10 +16,24 @@ h1. Table of Contents
 # "Page node":#page
 # "Sample":#sample
 
+h1(#pleasenote). Please Note
+
+All boolean type attributes/properties are not case sensitive and can accept 1/0, yes/no or true/false.
 
 h1(#site). &lt;site&gt;
 
-Root node. Does not have any attributes, but contains all the definitions below.
+Root node. Does not have any attributes.
+
+h2. Can Contain:
+
+* &lt;title&gt;
+* &lt;tracker&gt;
+* &lt;shell&gt;
+* &lt;contextMenu&gt;
+* &lt;data&gt;
+* &lt;asset&gt;
+* &lt;action&gt;
+* &lt;page&gt;
 
 h1(#title). &lt;title&gt;
 
