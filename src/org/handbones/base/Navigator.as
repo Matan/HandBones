@@ -247,7 +247,7 @@ package org.handbones.base
 		//-----------------------------------------------------------------------------------------------------------//
 		// PROTECTED
 		//-----------------------------------------------------------------------------------------------------------//
-		protected function navigateToPage(pageModel : IPageModel) : void 
+		protected function navigateToPage(pageModel : IPageModel = null) : void 
 		{
 			if(pageModel) 
 			{
@@ -264,7 +264,8 @@ package org.handbones.base
 					assetLoader.startAsset(id);
 				}
 			} 
-			else 
+			
+			else
 				dispatchNavigatorEvent(NavigatorEvent.PAGE_CHANGE);
 		}
 
@@ -309,8 +310,11 @@ package org.handbones.base
 				if(newPageModel.id != navigatorModel.currentPageId) 
 					navigateToPage(newPageModel);
 			}
-			else if(!newPageModel && navigatorModel.currentPage)
-				navigateToPage(newPageModel);
+			else if(!getRootAddress())
+				navigateToPage();
+				
+			else
+				dispatchNavigatorEvent(NavigatorEvent.INVALID_ADDRESS);
 		}
 	}
 }

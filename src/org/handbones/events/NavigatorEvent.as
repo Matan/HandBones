@@ -12,7 +12,8 @@ package org.handbones.events
 	public class NavigatorEvent extends Event {
 
 		public static const PAGE_CHANGE : String = "PAGE_CHANGE";		public static const ADDRESS_CHANGE : String = "ADDRESS_CHANGE";
-		
+		public static const INVALID_ADDRESS : String = "INVALID_ADDRESS";
+
 		protected var _page : IPage;
 		
 		public var action : ActionVO;
