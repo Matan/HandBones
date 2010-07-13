@@ -12,7 +12,7 @@ package org.handbones.core
 		 * 
 		 * @param id Page id specified in init settings.
 		 */
-		function gotoPageId(id : String) : void
+		function gotoPageId(id : String, history : Boolean = true) : void
 
 		/**
 		 * Invokes the URL given.

@@ -49,12 +49,12 @@ package org.handbones.base
 		/**
 		 * @inheritDoc
 		 */
-		public function gotoPageId(id : String) : void 
+		public function gotoPageId(id : String, history : Boolean = true) : void 
 		{
 			var pageModel : IPageModel = settingsModel.getPageModelById(id);
 			
 			if(pageModel)
-				setAddress(pageModel.address);
+				setAddress(pageModel.address, history);
 		}
 
 		/**

@@ -40,7 +40,7 @@ package org.handbones.controller
 			
 			//Navigation
 			if(action.gotoPageId) 
-				navigator.gotoPageId(action.gotoPageId);
+				navigator.gotoPageId(action.gotoPageId, action.keepHistory);
 			
 			else if(action.changeAddress) 
 				navigator.setAddress(action.changeAddress, action.keepHistory);
