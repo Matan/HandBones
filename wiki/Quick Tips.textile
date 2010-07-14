@@ -1,0 +1,31 @@
+Here are some quick little things that you might not realize.
+
+h1. Table of contents
+
+# "404 - Not Found":#notfound
+
+h1(#notfound). 404 - Not Found, for invalid addresses
+
+The "Navigator":http://github.com/Matan/HandBones/blob/master/src/org/handbones/base/Navigator.as fires <code>NavigatorEvent.INVALID_ADDRESS</code> if the user enters an invalid address into the address bar. Or lets say the user has bookmarked a page on your site, but when he/she returns you've updated your site and the page does not exist anymore. Which ever way, there is an easy way of showing a "404" with HandBones.
+
+Let's assume that you've already created your 404 page class and called it <code>NotFoundPage.as</code> and compiled it to your pages folder with your other pages.
+
+Now let's create the "page node":http://wiki.github.com/Matan/HandBones/site-xml-layout#page in your "site.xml":http://wiki.github.com/Matan/HandBones/site-xml-layout.
+
+We give it <code>id</code>, <code>title</code>, <code>address</code> and <code>src</code> values. Also flag the <code>loadOnDemand</code> to true, because most people won't even know about this page. Thus it will only load once it is needed.
+
+<pre>
+<code>
+<page id="NOT_FOUND_PAGE" title="404 Not Found" address="404-Not-Found" src="pages/NotFoundPage.swf" loadOnDemand="true" />
+</code>
+</pre>
+
+Define a "action node":http://wiki.github.com/Matan/HandBones/site-xml-layout#action to show the page whenever an invalid address is entered. Note that you **must** flag the <code>keepHistory</code> to false, because if the user decides to press back on their browser it will jump back to the invalid address and back to the 404 page, creating an unwanted loop.
+
+<pre>
+<code>
+<action event="INVALID_ADDRESS" gotoPageId="NOT_FOUND_PAGE" keepHistory="false" />
+</code>
+</pre>
+
+And that's it! Working example of this can be found on the "HandBones-Samples repo":http://github.com/Matan/HandBones-Samples.
