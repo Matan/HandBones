@@ -1,5 +1,6 @@
 package org.handbones.model 
 {
+	import org.handbones.model.vo.CookiesVO;
 	import org.handbones.core.IPageModel;
 	import org.robotlegs.mvcs.Actor;
 
@@ -21,6 +22,8 @@ package org.handbones.model
 
 		public var shellDispatchContextStartupComplete : Boolean = true;
 
+		public var cookiesVo : CookiesVO;
+		
 		public var data : XML;
 
 		public function SettingsModel() 

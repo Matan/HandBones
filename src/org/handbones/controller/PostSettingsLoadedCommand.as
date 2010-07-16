@@ -1,6 +1,5 @@
 package org.handbones.controller 
 {
-	import org.handbones.model.SizeModel;
 	import org.assetloader.base.AssetType;
 	import org.assetloader.base.Param;
 	import org.assetloader.core.IAssetLoader;
@@ -14,12 +13,17 @@ package org.handbones.controller
 	import org.handbones.base.page.PageMediatorMap;
 	import org.handbones.base.page.PageViewMap;
 	import org.handbones.core.IActionMap;
+	import org.handbones.core.ICookieModel;
 	import org.handbones.core.INavigator;
 	import org.handbones.model.ContextMenuModel;
+	import org.handbones.model.CookieModel;
 	import org.handbones.model.PageModel;
 	import org.handbones.model.SettingsModel;
+	import org.handbones.model.SizeModel;
 	import org.handbones.model.vo.ActionVO;
 	import org.handbones.model.vo.AssetVO;
+	import org.handbones.model.vo.CookieVO;
+	import org.handbones.model.vo.CookiesVO;
 	import org.handbones.model.vo.TrackVO;
 	import org.robotlegs.base.ContextEvent;
 	import org.robotlegs.mvcs.Command;
@@ -33,7 +37,6 @@ package org.handbones.controller
 	 */
 	public class PostSettingsLoadedCommand extends Command 
 	{
-
 		[Inject]
 		public var settingsModel : SettingsModel;
 
@@ -53,6 +56,10 @@ package org.handbones.controller
 			parseForTrackingVars();
 			parseForAssets();
 			populatePageModels();
+			
+			//Create and map CookieModel if cookie node is defined in site.xml
+			if(settingsModel.cookiesVo)
+				injector.mapValue(ICookieModel, createCookieModel());
 			
 			//Instantiate Navigator now to ensure that it only fires event after settings are ready.
 			injector.mapValue(INavigator, injector.instantiate(Navigator));
@@ -78,6 +85,54 @@ package org.handbones.controller
 				
 			//This will start loading the page swf's then all the other assets.
 			assetLoader.start();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------//
+		// COOKIES
+		//--------------------------------------------------------------------------------------------------------------------------------//
+
+		protected function createCookieModel() : ICookieModel
+		{
+			var cookiesVo : CookiesVO = settingsModel.cookiesVo;
+			
+			if(!cookiesVo.name)
+				throw new HandBonesError(HandBonesError.COOKIES_NAME_UNDEFINED);
+				
+			else if((/[^a-z0-9\/\-_]/gi).test(cookiesVo.name))
+				throw new HandBonesError(HandBonesError.COOKIES_NAME_INVALID);
+					
+				
+			var cookieModel : ICookieModel = new CookieModel(cookiesVo.name, cookiesVo.clear);
+				
+			for each (var cookieVo : CookieVO in cookiesVo.cookies) 
+			{
+				var value : * = cookieVo.value;
+				switch(cookieVo.type)
+				{
+					case "boolean":
+						value = toBoolean(value, true);
+						break;
+					case "number":
+						value = Number(value);
+						break;
+					case "uint":
+						value = uint(value);
+						break;
+					case "int":
+						value = int(value);
+						break;
+					case "array":
+						value = String(value).split(",");
+						break;
+				}
+				
+				if(cookieVo.reset)
+					cookieModel.setCookie(cookieVo.id, value);
+				else
+					cookieModel.setCookieDefault(cookieVo.id, value);
+			}
+			
+			return cookieModel;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//
