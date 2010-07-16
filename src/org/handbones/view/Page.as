@@ -1,4 +1,4 @@
-package org.handbones.base 
+package org.handbones.view 
 {
 	import org.assetloader.core.IGroupLoader;
 	import org.handbones.core.IPage;

@@ -3,7 +3,7 @@ package org.handbones.controller
 	import org.assetloader.core.IAssetLoader;
 	import org.assetloader.events.SWFAssetEvent;
 	import org.handbones.base.HandBonesError;
-	import org.handbones.base.PageMediator;
+	import org.handbones.view.PageMediator;
 	import org.handbones.core.IPage;
 	import org.handbones.core.IPageModel;
 	import org.handbones.events.PageEvent;
