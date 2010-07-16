@@ -7,6 +7,8 @@ h1. Table of Contents
 # "Title node":#title
 # "Tracker node":#tracker
 # "Shell node":#shell
+# "Cookies node":#cookies
+** "Cookie node":#cookie
 # "ContextMenu node":#contextmenu
 ** "Item node":#contextmenuitem
 # "Data node":#data
@@ -69,6 +71,32 @@ h2. Attributes:
 
 |_.Name|_.Required|_.Default|_.Description|
 |dispatchContextStartupComplete|no|true|At default HandBones will automatically dispatch <code>ContextEvent.STARTUP_COMPLETE</code> after the site.xml has been loaded and parsed. If you need to do some custom injections based on the settingsModel, you need to switch this too false and created your own command. This command should handle your injections and dispatch <code>ContextEvent.STARTUP_COMPLETE</code>.|
+
+h1(#cookies). &lt;cookies&gt;
+
+Define your local storage parameters here. If you do not define the "cookies" node the ICookieModel will not be mapped.
+
+h2. Can Contain:
+
+* &lt;cookie&gt; - Cookies will be created in order of appearance.
+
+h2. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|name|yes||Defines the name/path of you cookies local storage.|
+|reset|no|false|If true the previous sessions cookies will be deleted. This is use for debugging purposes only to simulate a user coming to the site for the first time.|
+
+h1(#cookie). &lt;cookie&gt;
+
+Defines the default of your cookie. Please note that if the cookie already exist the value will not be assigned, unless you set the "reset" flag to true.
+
+h2. Attributes:
+
+|_.Name|_.Required|_.Default|_.Description|
+|id|yes||Unique id of your cookie.|
+|value|no|null|The value of your cookie.|
+|type|no|string|Strongly type your value. Accepted values are: "boolean", "number", "int", "uint" and "array".|
+|reset|no|false|If true the previous value will be overritten.|
 
 h1(#contextmenu). &lt;contextMenu&gt;
 
