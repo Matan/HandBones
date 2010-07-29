@@ -1,7 +1,6 @@
 package org.handbones.controller 
 {
 	import org.assetloader.base.AssetType;
-	import org.handbones.model.ContextMenuModel;
 	import org.handbones.model.PageModel;
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.vo.ActionVO;
@@ -23,9 +22,6 @@ package org.handbones.controller
 
 		[Inject]
 		public var model : SettingsModel;
-
-		[Inject]
-		public var contextMenuModel : ContextMenuModel;
 
 		[Inject]
 		public var xml : XML;
@@ -51,7 +47,7 @@ package org.handbones.controller
 				switch(String(node.name())) 
 				{
 					case "contextMenu":
-						contextMenuModel.contextMenuVo = parseContextMenuNode(node);
+						model.contextMenuVo = parseContextMenuNode(node);
 						break;
 					case "cookies":
 						model.cookiesVo = parseCookiesNode(node);

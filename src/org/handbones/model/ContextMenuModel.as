@@ -74,6 +74,7 @@ package org.handbones.model
 			_actionMap.mapAction(item, caption, ContextMenuEvent);
 			
 			_menu.customItems.push(item);
+			
 			return item;
 		}
 

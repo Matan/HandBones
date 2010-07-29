@@ -37,11 +37,9 @@ package org.handbones.controller
 	 */
 	public class PostSettingsLoadedCommand extends Command 
 	{
-		[Inject]
-		public var settingsModel : SettingsModel;
 
 		[Inject]
-		public var contextMenuModel : ContextMenuModel;
+		public var settingsModel : SettingsModel;
 
 		[Inject]
 		public var sizeModel : SizeModel;
@@ -56,6 +54,10 @@ package org.handbones.controller
 			parseForTrackingVars();
 			parseForAssets();
 			populatePageModels();
+			
+			//Create and map ContextMenuModel if contextMenu node is defined in site.xml
+			if(settingsModel.contextMenuVo)
+				injector.mapValue(ContextMenuModel, createContextMenuModel());
 			
 			//Create and map CookieModel if cookie node is defined in site.xml
 			if(settingsModel.cookiesVo)
@@ -85,6 +87,20 @@ package org.handbones.controller
 				
 			//This will start loading the page swf's then all the other assets.
 			assetLoader.start();
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------//
+		// CONTEXT MENU MODEL
+		//--------------------------------------------------------------------------------------------------------------------------------//
+		protected function createContextMenuModel() : ContextMenuModel 
+		{
+			var model : ContextMenuModel = injector.instantiate(ContextMenuModel);
+			
+			model.contextMenuVo = settingsModel.contextMenuVo;
+			
+			parseActionsForTrackingVars(model.actions);
+			
+			return model;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------//
@@ -208,8 +224,6 @@ package org.handbones.controller
 			{
 				parseActionsForTrackingVars(settingsModel.pages[i].actions);
 			}
-			
-			parseActionsForTrackingVars(contextMenuModel.actions);
 		}
 
 		protected function parseActionsForTrackingVars(actions : Array) : void

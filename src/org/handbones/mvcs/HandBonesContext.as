@@ -16,7 +16,6 @@ package org.handbones.mvcs
 	import org.handbones.events.NavigatorEvent;
 	import org.handbones.events.PageEvent;
 	import org.handbones.events.SettingsEvent;
-	import org.handbones.model.ContextMenuModel;
 	import org.handbones.model.NavigatorModel;
 	import org.handbones.model.SettingsModel;
 	import org.handbones.model.SizeModel;
@@ -51,7 +50,6 @@ package org.handbones.mvcs
 
 		override protected function mapInjections() : void 
 		{
-			injector.mapSingleton(ContextMenuModel);
 			injector.mapSingleton(NavigatorModel);
 			injector.mapSingleton(SettingsModel);
 			injector.mapSingleton(SizeModel);
